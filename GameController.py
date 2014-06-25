@@ -71,7 +71,7 @@ class GameController():
         if inputStr == 'q' :
             self.cleanUpCurses()
             quit()
-        if re.search('^(jail|\d{1,2})\s(\d{1,2}|home)$',inputStr) : 
+        if re.search('^(jail|\d{1,2})\s(\d{1,2}|home)$',inputStr) :
             if not self.doMove(self.board.getTurn(), inputStr):
                 self.boardView.addErrorMessage(self.board.getRecentError())
                 error = True
