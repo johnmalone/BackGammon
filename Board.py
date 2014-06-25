@@ -1,5 +1,3 @@
-from Piece import Piece
-from Pip import Pip
 from copy import deepcopy
 from pprint import pprint
 
@@ -10,6 +8,16 @@ logging.basicConfig(filename='/tmp/curses.log',level=logging.DEBUG)
 
 class Board () :
     errors = []
+
+    MY_JAIL = 1
+    HIS_JAIL = 28
+
+    MY_HOME = 2
+    HIS_HOME = 27
+
+    MY_ACE = 3
+    HIS_ACE = 26
+
     def __init__(self):
         self.doubleCube = {'player': False, 'value': 1 }
         self.score = {'1': 0, '2': 0}
@@ -17,67 +25,54 @@ class Board () :
     def setDefaultBoardState(self):
         state = []
 
-        state.insert(0, ['1','1'])
-        state.insert(1, [])
-        state.insert(2, [])
-        state.insert(3, [])
-        state.insert(4, [])
-        state.insert(5, ['2','2','2','2','2'])
-        state.insert(6, [])
-        state.insert(7, ['2','2','2'])
-        state.insert(8, [])
-        state.insert(9, [])
-        state.insert(10, [])
-        state.insert(11, ['1','1','1','1','1'])
-        state.insert(12, ['2','2','2','2','2'])
-        state.insert(13, [])
-        state.insert(14, [])
-        state.insert(15, [])
-        state.insert(16, ['1','1','1'])
-        state.insert(17, [])
-        state.insert(18, ['1','1','1','1','1'])
-        state.insert(19, [])
-        state.insert(20, [])
-        state.insert(21, [])
-        state.insert(22, [])
-        state.insert(23, ['2','2'])
+        state.insert(0, -9999)
+        state.insert(1, 0)
+        state.insert(2, 0)
+        state.insert(3, 2)
+        state.insert(4, 0)
+        state.insert(5, 0)
+        state.insert(6, 0)
+        state.insert(7, 0)
+        state.insert(8, -5)
+        state.insert(9, 0)
+        state.insert(10, -3)
+        state.insert(11, 0)
+        state.insert(12, 0)
+        state.insert(13, 0)
+        state.insert(14, 5)
+        state.insert(15, -5)
+        state.insert(16, 0)
+        state.insert(17, 0)
+        state.insert(18, 0)
+        state.insert(19, 3)
+        state.insert(20, 0)
+        state.insert(21, 5)
+        state.insert(22, 0)
+        state.insert(23, 0)
+        state.insert(24, 0)
+        state.insert(25, 0)
+        state.insert(26, -2)
+        state.insert(27, 0)
+        state.insert(28, 0)
+        state.insert(29, 9999) # which way is up?
 
-        jail = {1: [], 2: []}
+        self.setCustomBoardState(state,  1)
 
-        self.setCustomBoardState(state, jail, 1)
-
-    def setCustomBoardState(self, boardState, jail, turn):
-        self.jail = {1: [], 2: []}
-        self.home = {1: [], 2: []}
+    def setCustomBoardState(self, boardState, turn):
         self.turn = turn
+        self.board =  boardState
 
-        for player in jail:
-            for pips in enumerate(jail[player]):
-                piece = Piece()
-                if player == 1:
-                    piece.setPlayer1()
-                else:
-                    piece.setPlayer2()
-                self.jail[player].append(piece)
+    def getPipAtIdx(self,idx):
+        board = self.getBoardForPlayer(1)
+        return board[self.MY_ACE+idx]
 
-        self.board = []
-        for pos,pips in enumerate(boardState):
-            pip = Pip()
-            if not pips:
-                self.board.insert(pos,pip)
-                continue
+    def getJailCountForPlayer(self,player):
+        board = self.getBoardForPlayer(player)
+        return abs(board[self.MY_JAIL])
 
-            player = pips[0]
-            count = len(pips)
-            for i in range(count):
-                piece = Piece()
-                if player == '1':
-                    piece.setPlayer1()
-                else:
-                    piece.setPlayer2()
-                pip.addPieceToPip(piece)
-
-            self.board.insert(pos,pip)
+    def getHomeCountForPlayer(self,player):
+        board = self.getBoardForPlayer(player)
+        return abs(board[self.MY_HOME])
 
     def userError(self, msg):
         self.errors.insert(0,msg)
@@ -100,10 +95,7 @@ class Board () :
 
     def toggleTurn(self) :
         self.turnOver = False
-        if self.turn == 1 : 
-            self.turn = 2
-        elif self.turn == 2 :
-            self.turn = 1
+        self.turn *= -1
 
     def getTurn(self):
         return self.turn
@@ -125,14 +117,41 @@ class Board () :
     def getHome(self):
         return self.home
 
+    """ Incoming moves from view are:
+        1->24: pip 
+        jail
+        home
+        convert the incoming position to an index 
+        from POV of self.turn"""
+    def convertViewPosToIdx(self, viewPos):
+        if viewPos == 'jail':
+            return self.MY_JAIL
+        elif viewPos == 'home':
+            return self.MY_HOME
+        elif int(viewPos) > 1 or int(viewPos) < 24:
+            return self.MY_ACE+(viewPos-1)
+        else
+            return False
+
+    def getBoardForPlayer(self, player):
+        if player > 0:
+            if self.board[0] = 9999:
+                return self.board
+            else:
+                return list(reversed(self.board))
+        else:
+             if self.board[0] = -9999:
+                return self.board
+            else:
+                return list(reversed(self.board))
+
+
     def playerHasMoveAvailable(self):
-        if self.jail[self.turn]:
+        board = self.getBoardForPlayer(self.turn)
+
+        if board[MY_JAIL] not 0:
             for i,die in enumerate(self.dice):
-                if self.turn == 1:
-                    destPip = die - 1
-                if self.turn  == 2:
-                    destPip = 24 - die
-                if self.canPieceMoveOutOfJail('jail', destPip):
+                if self.canPieceMoveOutOfJail(die):
                     return True
             return False
 
@@ -154,64 +173,63 @@ class Board () :
         return False
 
     def getPipCount(self) :
-        pipCount1 = 0
-        pipCount2 = 0
-        pipCount1 += len(self.jail[1]) * 25
-        pipCount2 += len(self.jail[2]) * 25
+        pipCount = {'1': 0, '-1': 0}
+        for player in [-1, 1]:
+            board = self.getBoardForPlayer(player)
+            for pos,count in enumerate(board):
+                if pos == 0:
+                    continue
+                elif pos == self.MY_JAIL:
+                    pipCount[str(player)] += abs(count*25)
+                elif pos < self.MY_ACE+24:
+                    pipCount[str(player)] += abs(count*pos)
 
-        for pos, pip in enumerate(self.board) :
-            if pip.getPipCount() :
-                if pip.getPlayerOnPip() == 1:
-                    pipCount1 += (24-pos) * pip.getPipCount()
-                else:
-                    pipCount2 += (1+pos) * pip.getPipCount()
+        return pipCount
 
-        return {'1' : pipCount1, '2' : pipCount2 }
-
-    def canPieceMoveOutOfJail(self, oldPosition, newPosition):
+    def canPieceMoveOutOfJail(self, dice):
         jailError = False
+        board = self.getBoardForPlayer(self.turn)
+
         movingPlayer = self.turn
-        if self.jail[movingPlayer] :
-            if oldPosition != 'jail':
-                jailError = True
-            if movingPlayer == 1 and newPosition > 5 :
-                jailError = True
-            if movingPlayer == 2 and newPosition < 19: 
-                jailError = True
+        if board[MY_JAIL]:
+             if die > 6
+             jailError = True
 
         if jailError :
             self.userError('Piece in Jail not moved correctly')
             return False
 
-        if self.doesPositionHave2OrMoreOppostionPieces(newPosition, movingPlayer) :
+        if self.doesPositionHave2OrMoreOppostionPieces(dice, board, movingPlayer) :
             self.userError('2 or more opposing pieces at new position')
             return False
 
         return True
 
+    """ positions should be 0 indexed.
+        Ace point == 0
+        opp Ace point = 23"""
     def canPieceMoveToPosition(self, oldPosition, newPosition) :
-        if not self.isPipLegal(oldPosition) or not self.isPipLegal(newPosition):
+        oldPosIdx = self.convertViewPosToIdx(oldPosition)
+        newPosIdx = self.convertViewPosToIdx(newPosition)
+
+        if not oldPosIdx or not newPosIdx:
             self.userError('Illegal pip error')
             return False
 
-        if not self.board[oldPosition].getPipCount() :
+        board = self.getBoardForPlayer(self.turn)
+        if not board[oldPosIdx] :
             self.userError('No pieces at old position')
             return False
 
-        if oldPosition < 0 or oldPosition > 23 :
-            self.userError('Invalid old position given.')
+        if (board[oldPosIdx] > 0) == (self.turn > 0):
+            self.userError('You cant move the opposition pieces')
             return False
 
-        movingPlayer = self.board[oldPosition].getPlayerOnPip()
-        if movingPlayer != self.turn:
-            self.userError('you cant move the other players piece')
-            return False
-
-        if self.jail[movingPlayer] and oldPosition != 'jail':
+        if board.[MY_JAIL] and oldPosIdx != self.MY_JAIL:
             self.userError('you must move out of jail first')
             return False
 
-        if newPosition == 'home' :
+        if newPosIdx == self.MY_HOME :
             if movingPlayer == 1:
                 start = 0
                 end = 18
@@ -219,26 +237,26 @@ class Board () :
                 start = 6
                 end = 24
 
-            for i in range(start, end) :
-                if self.doesPositionHaveSameTypeOfPiece(i, movingPlayer) :
+            for i in range(1,19) :
+                if self.doesPositionHaveSameTypeOfPiece(i, self.turn) :
                     self.userError('Pieces cant be moved off until all pieces \
                             are in the last 6 places for that player.')
                     return False
             return True # needs testing
 
-        if movingPlayer == 1 and oldPosition > newPosition or \
-            movingPlayer == 2 and oldPosition < newPosition :
+        if oldPosIdx > newPosIdx :
             self.userError('Pieces can only move forward')
             return False
 
-        if newPosition == 'jail':
+        # internally we might move things to jail
+        if newPosition == self.MY_JAIL:
             return True
 
-        if oldPosition == 'home':
+        if oldPosIdx == self.MY_HOME:
             self.userError('Piece cant move out of home')
             return False
 
-        if self.doesPositionHave2OrMoreOppostionPieces(newPosition, movingPlayer) :
+        if self.doesPositionHave2OrMoreOppostionPieces(newPosition, board, movingPlayer) :
             self.userError('2 or more opposing pieces at new position')
             return False
 
@@ -259,22 +277,25 @@ class Board () :
         return True
 
     def isPipLegal(self, pip):
-        if pip == 'jail' or pip == 'home':
-            return True
-
-        if int(pip) < len(self.board) and int(pip) >= 0:
+        if int(pip) < 23:
             return True
 
         self.userError('Illegal pip')
         return False
 
-    def movePiece (self, player, oldPipNum, newPipNum) :
+    """ Accepts view pov positions and returns true if the piece was moved
+        successfully, false otherwise"""
+    def movePiece (self, player, oldPosition, newPosition) :
+        oldPosIdx = self.convertViewPosToIdx(oldPosition)
+        newPosIdx = self.convertViewPosToIdx(newPosition)
 
-        if oldPipNum != 'jail' and newPipNum != 'home':
-            oldPosition = int(oldPipNum) - 1
-            newPosition = int(newPipNum) - 1
-            if not self.isPipLegal(oldPosition) or not self.isPipLegal(newPosition):
-                return False
+        if not oldPosIdx or not newPosIdx:
+            self.userError('Illegal pip error')
+            return False
+
+        board = self.getBoardForPlayer(self.turn)
+
+        if oldPipIdx != self.MY_JAIL and newPipIdx != self.MY_HOME:
 
             if not self.doesPositionHaveSameTypeOfPiece(oldPosition, player):
                 self.userError('Its not your turn!!')
@@ -286,69 +307,42 @@ class Board () :
             posDiff = abs(oldPosition - newPosition)
             if not self.areDiceLegit(posDiff) :
                 return False
-
-            piece = self.board[oldPosition].popPiece()
-            possiblyAPiece = self.board[newPosition].addPieceToPip(piece)
-            if isinstance(possiblyAPiece,Piece) :
-                self.putPieceInJail(possiblyAPiece)
-
             self.dice.remove(posDiff)
 
-        elif newPipNum == 'home':
-            oldPosition = int(oldPipNum) - 1
-            newPosition = newPipNum
-            if not self.isPipLegal(oldPosition) or not self.isPipLegal(newPosition):
-                return False
+            if board[newPosIdx] == 1 or board[newPosIdx] == -1:
+                board[self.HIS_JAIL] -= player
+            board[oldPosIdx] -= player
+            board[newPosIdx] += player
 
+        elif newPipIdx == self.MY_HOME:
             if not self.canPieceMoveToPosition(oldPosition, newPosition) :
                 return False
 
-            if player == 1:
-                posDiff = 25 - int(oldPipNum)
-            else:
-                posDiff = int(oldPipNum)
-            moveOff = False
-            for die in reversed(range(posDiff+1)):
-                for i,diceInList in enumerate(self.dice):
-                    if diceInList == posDiff:
-                        self.dice.remove(diceInList)
-                        moveOff = True
-                        break
-                    elif diceInList > posDiff:
-                        self.dice.remove(diceInList)
-                        moveOff = True
-                        break
-                if moveOff :
+            #changed from previous version. logic different...
+            for i,diceInList in enumerate(self.dice):
+                if diceInList >= oldPosition:
+                    self.dice.remove(diceInList)
+                    moveOff = True
                     break
+
             if moveOff :
-                piece = self.board[oldPosition].popPiece()
-                self.home[player].append(piece)
+                board[oldPosition] -= player
+                board[MY_HOME] += player
                 return True
             else :
                 return False
 
-
         else:
-            oldPosition = oldPipNum
-            newPosition = int(newPipNum) - 1
-            if not self.isPipLegal(oldPosition) or not self.isPipLegal(newPosition):
-                return False
-
             if not self.canPieceMoveOutOfJail(oldPosition, newPosition) :
                 return False
 
-            if player == 1:
-                posDiff = int(newPipNum)
-            else:
-                posDiff = 25 - int(newPipNum)
-
-            if not self.areDiceLegit(posDiff) :
+            if not self.areDiceLegit(oldPosition) :
                 return False
 
-            piece = self.jail[self.turn].pop()
-            possiblyAPiece = self.board[newPosition].addPieceToPip(piece)
-            if isinstance(possiblyAPiece,Piece) :
-                self.putPieceInJail(possiblyAPiece)
+            board[self.MY_JAIL] -= player
+            if board[newPosIdx] > 1 or board[newPosIdx] < -1:
+                board[self.HIS_JAIL] -= player
+            board[newPosIdx] += player
 
             self.dice.remove(posDiff)
 
@@ -373,16 +367,20 @@ class Board () :
     def putPieceInJail(self, piece) :
         self.jail[piece.getPlayer()].append(piece)
 
-    def doesPositionHaveSameTypeOfPiece(self, position, player) :
-        if not self.board[position]:
+    """Accepts view positions (1->24)"""
+    def doesPositionHaveSameTypeOfPiece(self, board, position, player) :
+        posIdx = self.convertViewPosToIdx(position)
+        if not board[posIdx]:
             return False
-        if self.board[position].getPlayerOnPip() != player :
+        if (board[posIdx] < 0) == (player < 0):
             return False
         return True
 
-    def doesPositionHave2OrMoreOppostionPieces(self, position, player):
-        if self.board[position].getPipCount() > 1 and self.board[position].getPlayerOnPip() != player :
-            return True
-        else :
+    """Accepts view positions (1->24)"""
+    def doesPositionHave2OrMoreOppostionPieces(self, position, board, player):
+        posIdx = self.convertViewPosToIdx(position)
+        if board[posIdx] < -2 or baord[posIdx] > 2:
             return False
+
+        return self.doesPositionHaveSameTypeOfPiece(board, position, player*-1):
 

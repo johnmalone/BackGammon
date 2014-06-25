@@ -17,8 +17,8 @@ class CursesBoard () :
     def __init__(self,stdscr):
         self.stdscr = stdscr
         self.windowWidth = 70
-        self.windowHeight = 24 
-        self.playPanelWidth = 28 
+        self.windowHeight = 24
+        self.playPanelWidth = 28
         self.playPanelHeight = 15
         self.checkers.insert(0, None)
         self.checkers.insert(1,curses.ACS_CKBOARD)
@@ -41,7 +41,7 @@ class CursesBoard () :
     def addPromptText(self, text):
         self.promptText = text
 
-    def getUserInput(self): 
+    def getUserInput(self):
         curses.echo()
         curses.curs_set(True)
         userInput = self.prompt.getstr()
@@ -54,6 +54,9 @@ class CursesBoard () :
 
     def addState(self, state):
         self.boardState = state
+
+    def addBoardObj(self,board):
+        self.boardObj = board
 
     def addJail(self, jail):
         self.jailState = jail
@@ -69,7 +72,7 @@ class CursesBoard () :
             self.prompt.addstr(1,0,self.promptText)
         else:
             start = 'Player '
-            end = '\'s turn>' 
+            end = '\'s turn>'
             self.prompt.addstr(1,0,start)
             self.prompt.addch(1,len(start),self.checkers[activePlayer])
             self.prompt.addstr(1,len(start) + 1, end)
@@ -170,38 +173,43 @@ class CursesBoard () :
                 pipInfo['win'].addch(y, pipInfo['x'], char)
 
     def draw_board_state(self):
-        for i,s in enumerate(self.boardState):
-            self.draw_checkers_at_pip(s.getPipCount(), s.getPlayerOnPip(), i)
+        for i in range(24):
+            tokens = self.boardObj.getPipAtIdx(i)
+            if s > 0 :
+                player = 1
+            else: # means pips with no players are -1, but thats fine
+                player = -1
+            self.draw_checkers_at_pip(abs(tokens),player, i)
         self.draw_checkers_in_jail()
         self.draw_checkers_in_home()
         self.draw_dice()
 
 
     def draw_checkers_in_jail(self) :
-        if not self.jailState :
-            return False
-
-        for player in range(1,3):
-            pieceList = self.jailState[player]
-            if pieceList:
-                win = self.jail[player]
-                for l,piece in enumerate(pieceList):
-                    if player == 1:
-                        win.addch(l+1,1,self.checkers[piece.getPlayer()])
-                    else :
-                        win.addch(((self.playPanelHeight//2)-2) - l, 1, self.checkers[piece.getPlayer()])
+        for player in [-1,1]:
+            jailCount = self.boardObj.getJailCountForPlayer(player)
+            if not jailCount:
+                return False
+            win = self.jail[player]
+            for l in range(jailCount+1):
+                char = self.checkers[player]
+                if player == 1:
+                    win.addch(l+1,1,char)
+                else :
+                    win.addch(((self.playPanelHeight//2)-2) - l, 1, char)
 
     def draw_checkers_in_home(self) :
-        if not self.homeState :
-            return False
+        for player in [-1,1]:
+            homeCount = self.boardObj.getHomeCountForPlayer(player)
+            if not homeCount:
+                return False
 
-        for k,pieceList in self.homeState.items():
-            win = self.home[k]
+            win = self.home[player]
             m = 0;
             n = 1;
-            for l,piece in enumerate(pieceList):
+            for l in range(jailCount+1):
                 if m < 5 :
-                    m += 1
+                   m += 1
                 else:
                     m = 1
                     n += 1
@@ -280,10 +288,7 @@ class CursesBoard () :
 
         curses.panel.update_panels()
         self.stdscr.refresh()
-        #self.stdscr.getkey()
 
-    def drawBoard(self):
-        pass
 
 def bgBoard(stdscr) :
     board = CursesBoard(stdscr)
