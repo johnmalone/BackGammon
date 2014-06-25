@@ -1,0 +1,34 @@
+http://mcsp.wartburg.edu/zelle/cs270/handouts/frs-src/project/hotgammon/patterns/gerry/Gerry.java
+
+depth = 0
+move = []
+if len(dice) == 2:
+	genMoves(state, dice, player, depth, move)
+	dice.reverse()
+	genMoves(state, dice, player, depth, move)
+else:
+	genMoves(state,dice,player,depth,move)
+
+addMoveToBucket(move):
+move = []
+genMoves(state, dice, move, player)
+	if noMoreDice
+		addMoveToBucket(move)
+		return;
+	
+	for pip in range(lastPip to acePip)
+		if state[pip].getPlayerOnPip() == player:
+			diceToPassOn = copy(dice)
+			cloneState = state.copy()
+			if cloneState.move(pip, newPip):
+				cloneMove = move
+				cloneMove[] = (pip, newPip)
+				diceToPassOn.remove(die)
+				genMoves(cloneState, diceToPassOn, cloneMove)
+		
+
+
+
+
+
+
