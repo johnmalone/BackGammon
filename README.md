@@ -18,3 +18,8 @@ python3 main.py
  * &lt;source pip&gt; &lt;dest pip&gt;
  * EG:
  * 12 14
+
+Issues 26/6/2014
+* computer logic when figuring out a double is very slow
+* random crashes remain
+* computer "logic" is pretty dumb, basically doing little more than picking a move at random
