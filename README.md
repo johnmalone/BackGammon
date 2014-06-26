@@ -15,6 +15,6 @@ python3 main.py
 
 * select H C or T for human computer or testing
 * enter a valid move with:
- * <source pip> <dest pip>
+ * &lt;source pip&gt; &lt;dest pip&gt;
  * EG:
  * 12 14
