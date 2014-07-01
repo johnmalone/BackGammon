@@ -37,9 +37,7 @@ class GameController():
     def setupBoardView(self, dice = False):
         activeDice = self.board.getActiveDice()
         self.boardView.setActiveDice(copy.deepcopy(activeDice))
-        self.boardView.addState(self.board.getBoardState())
-        self.boardView.addJail(self.board.getJail())
-        self.boardView.addHome(self.board.getHome())
+        self.boardView.addBoardObj(self.board)
         if not dice:
             self.boardView.addDice(copy.deepcopy(activeDice))
         else :

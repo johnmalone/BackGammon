@@ -3,7 +3,6 @@ import logging
 
 logging.basicConfig(filename='/tmp/curses.log',level=logging.DEBUG)
 
-
 class CursesBoard () :
     boardState = False
     homeState = False
@@ -175,7 +174,7 @@ class CursesBoard () :
     def draw_board_state(self):
         for i in range(24):
             tokens = self.boardObj.getPipAtIdx(i)
-            if s > 0 :
+            if tokens > 0 :
                 player = 1
             else: # means pips with no players are -1, but thats fine
                 player = -1
