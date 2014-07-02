@@ -3,7 +3,6 @@ import logging
 
 logging.basicConfig(filename='/tmp/curses.log',level=logging.DEBUG)
 
-
 class CursesBoard () :
     boardState = False
     homeState = False

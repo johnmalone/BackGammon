@@ -145,7 +145,6 @@ class Board () :
              else:
                 return list(reversed(self.board))
 
-
     def playerHasMoveAvailable(self):
         board = self.getBoardForPlayer(self.turn)
 
@@ -155,12 +154,18 @@ class Board () :
                     return True
             return False
 
-        for pos,pip in enumerate(board[self.MY_ACE:self.MY_ACE+24]):
-            if (self.turn > 0) != (pip > 0):
+        for pos,pip in enumerate(board[self.MY_ACE:self.MY_ACE+24]): 
+            if pos == 0:
                 continue
-
+            if pos == self.MY_HOME:
+                continue
+            if pos == self.MY_JAIL:
+                continue
+            if (self.turn > 0) == (pip > 0):
+                continue
+            posIdx = self.convertViewPosToIdx(pos)
             for i,die in enumerate(self.dice):
-                destPip = pos + die
+                destPip = posIdx + die
                 if self.canPieceMoveToPosition(pos, destPip):
                     return True
 
@@ -182,12 +187,11 @@ class Board () :
         return pipCount
 
     def canPieceMoveOutOfJail(self, dice):
-        jailError = False
         board = self.getBoardForPlayer(self.turn)
 
         movingPlayer = self.turn
         if board[self.MY_JAIL]:
-             if die > 6:
+            if die > 6:
                 self.userError('Piece in Jail not moved correctly')
                 return False
 
@@ -222,7 +226,7 @@ class Board () :
             return False
 
         if newPosIdx == self.MY_HOME :
-            if movingPlayer == 1:
+            if self.turn == 1:
                 start = 0
                 end = 18
             else :
@@ -230,7 +234,7 @@ class Board () :
                 end = 24
 
             for i in range(1,19) :
-                if self.doesPositionHaveSameTypeOfPiece(i, self.turn) :
+                if self.doesPositionHaveSameTypeOfPiece(board, i, self.turn) :
                     self.userError('Pieces cant be moved off until all pieces \
                             are in the last 6 places for that player.')
                     return False
@@ -319,7 +323,7 @@ class Board () :
 
             if moveOff :
                 board[oldPosition] -= player
-                board[MY_HOME] += player
+                board[self.MY_HOME] += player
                 return True
             else :
                 return False
@@ -345,6 +349,7 @@ class Board () :
 
     def gameIsOver(self):
         pipCount = self.getPipCount()
+        logging.debug(pipCount)
         if not pipCount['1']:
             self.userError('Player 1 is the winner!')
             return True
