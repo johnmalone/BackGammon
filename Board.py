@@ -5,6 +5,7 @@ import copy
 import logging
 logging.basicConfig(filename='/tmp/curses.log',level=logging.DEBUG)
 
+# foo
 
 class Board () :
     errors = []
