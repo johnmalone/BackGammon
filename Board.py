@@ -128,7 +128,7 @@ class Board () :
             return self.MY_JAIL
         elif viewPos == 'home':
             return self.MY_HOME
-        elif int(viewPos) > 1 or int(viewPos) < 24:
+        elif int(viewPos) >= 1 or int(viewPos) <= 24:
             if self.turn < 0:
                 return self.MY_ACE+(int(viewPos)-1)
             else:
@@ -136,6 +136,10 @@ class Board () :
         else:
             return False
 
+    def resetView(self):
+        if self.board[0] == 9999:
+           list(reversed(self.board))
+    
     def getBoardForPlayer(self, player):
         if player > 0:
             if self.board[0] == 9999:
@@ -188,7 +192,7 @@ class Board () :
 
         movingPlayer = self.turn
         if board[self.MY_JAIL]:
-            if die > 6:
+            if dice > 6:
                 self.userError('Piece in Jail not moved correctly')
                 return False
 
@@ -203,7 +207,6 @@ class Board () :
         2 == home
         opp Ace point = 23"""
     def canPieceMoveToPosition(self, oldPosIdx, newPosIdx) :
-
         if not oldPosIdx or not newPosIdx:
             self.userError('Illegal pip error')
             return False
@@ -235,7 +238,7 @@ class Board () :
                     return False
             return True # needs testing
 
-        if oldPosIdx > newPosIdx :
+        if oldPosIdx < newPosIdx :
             self.userError('Pieces can only move forward')
             return False
 
@@ -285,17 +288,18 @@ class Board () :
 
         board = self.getBoardForPlayer(self.turn)
 
-        if oldPosIdx != self.MY_JAIL and newPosIdx != self.MY_HOME:
+        if not self.canPieceMoveToPosition(oldPosIdx, newPosIdx) :
+            self.userError('Cant move to that position')
+            return False
 
+        if oldPosIdx != self.MY_JAIL and newPosIdx != self.MY_HOME:
             if not self.doesPositionHaveSameTypeOfPiece(board, oldPosIdx, player):
                 self.userError('Its not your turn!!')
                 return False
 
-            if not self.canPieceMoveToPosition(oldPosIdx, newPosIdx) :
-                return False
-
             posDiff = abs(oldPosIdx - newPosIdx)
             if not self.areDiceLegit(posDiff) :
+                self.userError('Dice are not legit')
                 return False
             self.dice.remove(posDiff)
 
@@ -305,11 +309,6 @@ class Board () :
             board[newPosIdx] += player
 
         elif newPosIdx == self.MY_HOME:
-            logging.debug('off home with ya {0} {1} {2}'.format(oldPosIdx, newPosIdx, self.MY_HOME))
-            if not self.canPieceMoveToPosition(oldPosIdx, self.MY_HOME) :
-                return False
-            logging.debug('so far so goo')
-
             #changed from previous version. logic different...
             for i,diceInList in enumerate(self.dice):
                 logging.debug(diceInList)

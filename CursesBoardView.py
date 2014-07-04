@@ -51,6 +51,7 @@ class CursesBoard () :
         return self.checkers[player]
 
     def returnViewPlayerFromBoardPlayer(self,boardPlayer):
+        logging.debug('boardPlayer {0}'.format(boardPlayer))
         if boardPlayer > 1 : 
             return 1
         else: 
@@ -173,6 +174,7 @@ class CursesBoard () :
                 pipInfo['win'].addch(y, pipInfo['x'], char)
 
     def draw_board_state(self):
+        self.boardObj.resetView()
         for i in range(24):
             tokens = self.boardObj.getPipAtIdx(i)
             if tokens > 0 :
