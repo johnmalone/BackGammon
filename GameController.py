@@ -19,8 +19,8 @@ class GameController():
         self.initCurses()
         self.boardView = CursesBoard(self.stdscr)
 
-    def setCustomBoardState(self, state, jail, turn):
-        self.board.setCustomBoardState(state, jail, turn)
+    def setCustomBoardState(self, state, turn):
+        self.board.setCustomBoardState(state, turn)
 
     def initCurses(self):
         self.stdscr = curses.initscr()
@@ -126,7 +126,7 @@ class GameController():
         while True:
             if not self.board.playerHasMoveAvailable():
                 self.boardView.addErrorMessage('Player {0} has no moves available with dice {1},{2}!'\
-                                                .format(self.board.getTurn(), dice[0], dice[1] ))
+                                                .format(self.boardView.returnViewPlayerFromBoardPlayer(self.board.getTurn()), dice[0], dice[1] ))
                 self.board.toggleTurn()
                 dice = self.doDiceRoll()
                 self.board.setDiceRoll(copy.deepcopy(dice))

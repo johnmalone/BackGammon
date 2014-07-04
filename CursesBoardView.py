@@ -19,7 +19,7 @@ class CursesBoard () :
         self.windowHeight = 24
         self.playPanelWidth = 28
         self.playPanelHeight = 15
-        self.checkers.insert(0, None)
+        self.checkers.insert(0,None)
         self.checkers.insert(1,curses.ACS_CKBOARD)
         self.checkers.insert(2,curses.ACS_DIAMOND)
         self.jail.insert(0,None)
@@ -47,7 +47,14 @@ class CursesBoard () :
         curses.curs_set(False)
         curses.noecho()
         return userInput
+    def getTokenForPlayer(self,player):
+        return self.checkers[player]
 
+    def returnViewPlayerFromBoardPlayer(self,boardPlayer):
+        if boardPlayer > 1 : 
+            return 1
+        else: 
+            return 2
     def addErrorMessage(self, msg):
         self.errorMessage = msg
 
@@ -56,12 +63,6 @@ class CursesBoard () :
 
     def addBoardObj(self,board):
         self.boardObj = board
-
-    def addJail(self, jail):
-        self.jailState = jail
-
-    def addHome(self, home):
-        self.homeState = home
 
     def draw_pip(self, pipDict) :
         pipDict['win'].addch(pipDict['y'], pipDict['x'], curses.ACS_VLINE)
@@ -219,8 +220,7 @@ class CursesBoard () :
             curses.curs_set(0)
         except:
             pass
-
-        self.pipMap = []
+        activePlayer = self.returnViewPlayerFromBoardPlayer(activePlayer)
         homePanelWidth = (self.windowWidth - ((self.playPanelWidth*2)+7))
         win1, panel1 = self.make_panel(self.windowHeight, self.windowWidth, 0, 0, "Main Board")
         self.mainBoard = win1
@@ -247,11 +247,11 @@ class CursesBoard () :
         self.dice1,panel10 = self.make_panel(3,3, (self.playPanelHeight//2)+1, (self.windowWidth - (homePanelWidth+3)), "2")
         self.dice2,panel11 = self.make_panel(3,3, (self.playPanelHeight//2)+1, (self.windowWidth - (homePanelWidth-1)), "2")
 
+        self.pipMap = []
         for pos in range(0,6) :
             coord = int((self.playPanelWidth / 7) * (6-pos))
             onePip = {'y': self.playPanelHeight-1,'x': coord, 'win': win3}
             self.pipMap.append(onePip)
-
 
         for pos in range(6,12) :
             coord = int((self.playPanelWidth / 7) * (12-pos))

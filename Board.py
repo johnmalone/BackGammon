@@ -5,8 +5,6 @@ import copy
 import logging
 logging.basicConfig(filename='/tmp/curses.log',level=logging.DEBUG)
 
-# foo
-
 class Board () :
     errors = []
 
@@ -76,6 +74,7 @@ class Board () :
         return abs(board[self.MY_HOME])
 
     def userError(self, msg):
+        logging.debug(msg)
         self.errors.insert(0,msg)
 
     def clearErrors(self):
@@ -130,7 +129,10 @@ class Board () :
         elif viewPos == 'home':
             return self.MY_HOME
         elif int(viewPos) > 1 or int(viewPos) < 24:
-            return self.MY_ACE+(int(viewPos)-1)
+            if self.turn < 0:
+                return self.MY_ACE+(int(viewPos)-1)
+            else:
+                return self.MY_ACE+(int(viewPos)-24)
         else:
             return False
 
@@ -148,29 +150,23 @@ class Board () :
 
     def playerHasMoveAvailable(self):
         board = self.getBoardForPlayer(self.turn)
-
         if board[self.MY_JAIL] != 0:
             for i,die in enumerate(self.dice):
                 if self.canPieceMoveOutOfJail(die):
                     return True
             return False
 
-        for pos,pip in enumerate(board[self.MY_ACE:self.MY_ACE+24]): 
-            if pos == 0:
+        for pos in range(self.MY_ACE, self.MY_ACE+24):
+            pip = self.board[pos]
+            if (self.turn > 0) != (pip > 0):
                 continue
-            if pos == self.MY_HOME:
-                continue
-            if pos == self.MY_JAIL:
-                continue
-            if (self.turn > 0) == (pip > 0):
-                continue
-            posIdx = self.convertViewPosToIdx(pos)
             for i,die in enumerate(self.dice):
-                destPip = posIdx + die
+                destPip = pos + die
+                logging.debug('destPip {0}, pos:{1}'.format(destPip,pos))
+                if destPip > self.MY_ACE+23:
+                    destPip = self.MY_HOME
                 if self.canPieceMoveToPosition(pos, destPip):
                     return True
-
-        self.userError('Player %s has no valid moves. Turn Over.' % self.turn)
         return False
 
     def getPipCount(self) :
@@ -203,11 +199,10 @@ class Board () :
         return True
 
     """ positions should be 0 indexed.
-        Ace point == 0
+        1 == jail 
+        2 == home
         opp Ace point = 23"""
-    def canPieceMoveToPosition(self, oldPosition, newPosition) :
-        oldPosIdx = self.convertViewPosToIdx(oldPosition)
-        newPosIdx = self.convertViewPosToIdx(newPosition)
+    def canPieceMoveToPosition(self, oldPosIdx, newPosIdx) :
 
         if not oldPosIdx or not newPosIdx:
             self.userError('Illegal pip error')
@@ -217,8 +212,7 @@ class Board () :
         if not board[oldPosIdx] :
             self.userError('No pieces at old position')
             return False
-
-        if (board[oldPosIdx] > 0) == (self.turn > 0):
+        if (board[oldPosIdx] > 0) != (self.turn > 0):
             self.userError('You cant move the opposition pieces')
             return False
 
@@ -227,14 +221,14 @@ class Board () :
             return False
 
         if newPosIdx == self.MY_HOME :
-            if self.turn == 1:
+            if self.turn == -1:
                 start = 0
                 end = 18
             else :
                 start = 6
                 end = 24
 
-            for i in range(1,19) :
+            for i in range(start,end) :
                 if self.doesPositionHaveSameTypeOfPiece(board, i, self.turn) :
                     self.userError('Pieces cant be moved off until all pieces \
                             are in the last 6 places for that player.')
@@ -246,14 +240,14 @@ class Board () :
             return False
 
         # internally we might move things to jail
-        if newPosition == self.MY_JAIL:
+        if newPosIdx == self.MY_JAIL:
             return True
 
         if oldPosIdx == self.MY_HOME:
             self.userError('Piece cant move out of home')
             return False
 
-        if self.doesPositionHave2OrMoreOppostionPieces(newPosition, board, self.turn) :
+        if self.doesPositionHave2OrMoreOppostionPieces(newPosIdx, board, self.turn) :
             self.userError('2 or more opposing pieces at new position')
             return False
 
@@ -285,7 +279,6 @@ class Board () :
     def movePiece (self, player, oldPosition, newPosition) :
         oldPosIdx = self.convertViewPosToIdx(oldPosition)
         newPosIdx = self.convertViewPosToIdx(newPosition)
-
         if not oldPosIdx or not newPosIdx:
             self.userError('Illegal pip error')
             return False
@@ -294,11 +287,11 @@ class Board () :
 
         if oldPosIdx != self.MY_JAIL and newPosIdx != self.MY_HOME:
 
-            if not self.doesPositionHaveSameTypeOfPiece(board, oldPosition, player):
+            if not self.doesPositionHaveSameTypeOfPiece(board, oldPosIdx, player):
                 self.userError('Its not your turn!!')
                 return False
 
-            if not self.canPieceMoveToPosition(oldPosition, newPosition) :
+            if not self.canPieceMoveToPosition(oldPosIdx, newPosIdx) :
                 return False
 
             posDiff = abs(oldPosIdx - newPosIdx)
@@ -311,27 +304,27 @@ class Board () :
             board[oldPosIdx] -= player
             board[newPosIdx] += player
 
-        elif newPipIdx == self.MY_HOME:
-            if not self.canPieceMoveToPosition(oldPosition, newPosition) :
+        elif newPosIdx == self.MY_HOME:
+            logging.debug('off home with ya {0} {1} {2}'.format(oldPosIdx, newPosIdx, self.MY_HOME))
+            if not self.canPieceMoveToPosition(oldPosIdx, self.MY_HOME) :
                 return False
+            logging.debug('so far so goo')
 
             #changed from previous version. logic different...
             for i,diceInList in enumerate(self.dice):
-                if diceInList >= oldPosition:
+                logging.debug(diceInList)
+                logging.debug(oldPosIdx)
+                if diceInList >= oldPosIdx:
                     self.dice.remove(diceInList)
-                    moveOff = True
-                    break
-
-            if moveOff :
-                board[oldPosition] -= player
-                board[self.MY_HOME] += player
-                return True
-            else :
-                return False
+                    board[int(oldPosIdx)] -= player
+                    board[self.MY_HOME] += player
+                    return True
+            return False
 
         else:
-            if not self.canPieceMoveOutOfJail(oldPosition, newPosition) :
-                return False
+            for i,diceInList in enumerate(self.dice):
+                if not self.canPieceMoveOutOfJail(diceInList) :
+                    return False
 
             if not self.areDiceLegit(oldPosition) :
                 return False
@@ -350,7 +343,6 @@ class Board () :
 
     def gameIsOver(self):
         pipCount = self.getPipCount()
-        logging.debug(pipCount)
         if not pipCount['1']:
             self.userError('Player 1 is the winner!')
             return True
@@ -365,20 +357,18 @@ class Board () :
     def putPieceInJail(self, piece) :
         self.jail[piece.getPlayer()].append(piece)
 
-    """Accepts view positions (1->24)"""
-    def doesPositionHaveSameTypeOfPiece(self, board, position, player) :
-        posIdx = self.convertViewPosToIdx(position)
+    """0 indexed"""
+    def doesPositionHaveSameTypeOfPiece(self, board, posIdx, player) :
         if not board[posIdx]:
             return False
-        if (board[posIdx] < 0) == (player < 0):
+        if (board[posIdx] < 0) != (player < 0):
             return False
         return True
 
     """Accepts view positions (1->24)"""
-    def doesPositionHave2OrMoreOppostionPieces(self, position, board, player):
-        posIdx = self.convertViewPosToIdx(position)
+    def doesPositionHave2OrMoreOppostionPieces(self, posIdx, board, player):
         if board[posIdx] < -2 or board[posIdx] > 2:
             return False
 
-        return self.doesPositionHaveSameTypeOfPiece(board, position, player*-1)
+        return self.doesPositionHaveSameTypeOfPiece(board, posIdx, player*-1)
 
