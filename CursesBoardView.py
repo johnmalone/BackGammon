@@ -47,15 +47,17 @@ class CursesBoard () :
         curses.curs_set(False)
         curses.noecho()
         return userInput
+
     def getTokenForPlayer(self,player):
         return self.checkers[player]
 
     def returnViewPlayerFromBoardPlayer(self,boardPlayer):
         logging.debug('boardPlayer {0}'.format(boardPlayer))
-        if boardPlayer > 1 : 
+        if boardPlayer > 0 :
             return 1
-        else: 
+        else:
             return 2
+
     def addErrorMessage(self, msg):
         self.errorMessage = msg
 
@@ -204,24 +206,25 @@ class CursesBoard () :
         for player in [-1,1]:
             homeCount = self.boardObj.getHomeCountForPlayer(player)
             if not homeCount:
-                return False
+                continue
 
             win = self.home[player]
             m = 0;
             n = 1;
-            for l in range(jailCount+1):
+            for l in range(homeCount+1):
                 if m < 5 :
                    m += 1
                 else:
                     m = 1
                     n += 1
-                win.addch(n,m,self.checkers[piece.getPlayer()])
+                win.addch(n,m,self.checkers[player])
 
     def createBoard(self, activePlayer):
         try:
             curses.curs_set(0)
         except:
             pass
+        self.boardObj.setBoardForPlayer(1)
         activePlayer = self.returnViewPlayerFromBoardPlayer(activePlayer)
         homePanelWidth = (self.windowWidth - ((self.playPanelWidth*2)+7))
         win1, panel1 = self.make_panel(self.windowHeight, self.windowWidth, 0, 0, "Main Board")
@@ -270,11 +273,11 @@ class CursesBoard () :
             onePip = {'y': 0,'x': coord, 'win': win3}
             self.pipMap.append(onePip)
 
-        self.jail.insert(1,win6)
-        self.jail.insert(2,win7)
+        self.jail.insert(2,win6)
+        self.jail.insert(1,win7)
 
-        self.home.insert(1,win4)
-        self.home.insert(2,win5)
+        self.home.insert(2,win4)
+        self.home.insert(1,win5)
 
         self.draw_prompt(activePlayer)
 

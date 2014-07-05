@@ -134,6 +134,7 @@ class GameController():
                 self.setupBoardView()
                 sleep (1)
                 continue
+            pipCount = self.board.getPipCount()
             if self.board.getTurn() == 1:
                 if testing:
                     bgEngine = BGEngine(copy.deepcopy(self.board))
