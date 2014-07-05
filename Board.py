@@ -132,7 +132,7 @@ class Board () :
             if self.turn > 0:
                 return self.MY_ACE+(int(viewPos)-1)
             else:
-                return self.MY_ACE+(int(viewPos)-24)
+                return self.MY_ACE+(24 - int(viewPos))
         else:
             return False
 
@@ -162,7 +162,7 @@ class Board () :
             if (self.turn > 0) != (pip > 0):
                 continue
             for i,die in enumerate(self.dice):
-                destPip = pos + die
+                destPip = pos - die
                 logging.debug('destPip {0}, pos:{1}'.format(destPip,pos))
                 if destPip > self.MY_ACE+23:
                     destPip = self.MY_HOME
@@ -202,7 +202,7 @@ class Board () :
         return True
 
     """ positions should be 0 indexed.
-        1 == jail 
+        1 == jail
         2 == home
         opp Ace point = 23"""
     def canPieceMoveToPosition(self, oldPosIdx, newPosIdx) :
@@ -237,20 +237,20 @@ class Board () :
                     return False
             return True # needs testing
 
-        if oldPosIdx > newPosIdx :
-            self.userError('Pieces can only move forward')
+        if self.doesPositionHave2OrMoreOppostionPieces(newPosIdx, self.turn) :
+            self.userError('2 or more opposing pieces at new position')
             return False
 
         # internally we might move things to jail
         if newPosIdx == self.MY_JAIL:
             return True
 
-        if oldPosIdx == self.MY_HOME:
-            self.userError('Piece cant move out of home')
+        if oldPosIdx < newPosIdx :
+            self.userError('Pieces can only move forward')
             return False
 
-        if self.doesPositionHave2OrMoreOppostionPieces(newPosIdx, self.turn) :
-            self.userError('2 or more opposing pieces at new position')
+        if oldPosIdx == self.MY_HOME:
+            self.userError('Piece cant move out of home')
             return False
 
         return True
@@ -262,7 +262,6 @@ class Board () :
         return True
 
     def areDiceLegit(self, posDiff):
-
         if not posDiff in self.dice:
             self.userError('Dont have dice for that move')
             return False
@@ -304,6 +303,7 @@ class Board () :
 
             if self.board[newPosIdx] == 1 or self.board[newPosIdx] == -1:
                 self.board[self.HIS_JAIL] -= player
+                self.board[newPosIdx] += player
             self.board[oldPosIdx] -= player
             self.board[newPosIdx] += player
 
@@ -352,9 +352,6 @@ class Board () :
     def setDiceRoll(self, dice):
         self.dice = dice
 
-    def putPieceInJail(self, piece) :
-        self.jail[piece.getPlayer()].append(piece)
-
     """0 indexed"""
     def doesPositionHaveSameTypeOfPiece(self, posIdx, player) :
         if not self.board[posIdx]:
@@ -365,7 +362,7 @@ class Board () :
 
     """Accepts view positions (1->24)"""
     def doesPositionHave2OrMoreOppostionPieces(self, posIdx, player):
-        if self.board[posIdx] < -2 or self.board[posIdx] > 2:
+        if self.board[posIdx] > -2 and self.board[posIdx] < 2:
             return False
 
         return self.doesPositionHaveSameTypeOfPiece(posIdx, player*-1)

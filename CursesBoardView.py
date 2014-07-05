@@ -193,9 +193,9 @@ class CursesBoard () :
         for player in [-1,1]:
             jailCount = self.boardObj.getJailCountForPlayer(player)
             if not jailCount:
-                return False
+                continue
             win = self.jail[player]
-            for l in range(jailCount+1):
+            for l in range(jailCount):
                 char = self.checkers[player]
                 if player == 1:
                     win.addch(l+1,1,char)
