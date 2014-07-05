@@ -190,7 +190,7 @@ class CursesBoard () :
 
 
     def draw_checkers_in_jail(self) :
-        for player in [-1,1]:
+        for player in [1,-1]:
             jailCount = self.boardObj.getJailCountForPlayer(player)
             if not jailCount:
                 continue

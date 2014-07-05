@@ -38,6 +38,7 @@ class GameController():
         activeDice = self.board.getActiveDice()
         self.boardView.setActiveDice(copy.deepcopy(activeDice))
         self.boardView.addBoardObj(self.board)
+        logging.debug(self.board.board)
         if not dice:
             self.boardView.addDice(copy.deepcopy(activeDice))
         else :
@@ -119,7 +120,6 @@ class GameController():
                 return True
             else:
                 self.boardView.addPromptText('(h)uman; (c)omputer; (t)est; (q)uit?> ')
-
         self.boardView.addPromptText(False)
         self.setupBoardView()
 

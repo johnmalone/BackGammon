@@ -245,6 +245,9 @@ class Board () :
         if newPosIdx == self.MY_JAIL:
             return True
 
+        if oldPosIdx == self.MY_JAIL and newPosIdx != self.MY_HOME:
+            return True
+
         if oldPosIdx < newPosIdx :
             self.userError('Pieces can only move forward')
             return False
@@ -324,7 +327,12 @@ class Board () :
                 if not self.canPieceMoveOutOfJail(diceInList) :
                     return False
 
-            if not self.areDiceLegit(oldPosition) :
+            if player > 0:
+                pos = 25 - int(newPosition)
+            else:
+                pos = int(newPosition)
+
+            if not self.areDiceLegit(pos) :
                 return False
 
             self.board[self.MY_JAIL] -= player
@@ -332,7 +340,7 @@ class Board () :
                 self.board[self.HIS_JAIL] -= player
             self.board[newPosIdx] += player
 
-            self.dice.remove(posDiff)
+            self.dice.remove(pos)
 
         return True
 
