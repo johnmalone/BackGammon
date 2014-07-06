@@ -24,14 +24,14 @@ class TestBoardClass(unittest.TestCase):
     def test_interMediatePipCount(self):
         initialState = [9999,0,0,-1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-9999]
         self.board.clearErrors()
-        self.board.setCustomBoardState(initialState, 1)
+        self.board.setCustomBoardState(copy.deepcopy(initialState), 1)
         pipCount = self.board.getPipCount()
         self.assertEqual(pipCount, {'1': 2, '-1': 24})
 
     def test_gameOver(self):
         initialState = [9999,0,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-15,0,0,-9999]
         self.board.clearErrors()
-        self.board.setCustomBoardState(initialState, 1)
+        self.board.setCustomBoardState(copy.deepcopy(initialState), 1)
         pipCount = self.board.getPipCount()
         gameOver = self.board.gameIsOver()
         self.assertEqual(pipCount, {'1': 0, '-1': 15})
@@ -42,7 +42,7 @@ class TestBoardClass(unittest.TestCase):
         initialState = [9999,0,0,-1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-9999]
         finalState = [9999,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-9999]
         self.board.clearErrors()
-        self.board.setCustomBoardState(initialState, 1)
+        self.board.setCustomBoardState(copy.deepcopy(initialState), 1)
         self.board.setDiceRoll([1,2])
         self.assertEqual(self.board.board,initialState)
         self.board.movePiece(1,2,1)
@@ -51,7 +51,7 @@ class TestBoardClass(unittest.TestCase):
     def test_illegalMoveOppPieces(self):
         initialState = [9999,0,0,-2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-9999]
         self.board.clearErrors()
-        self.board.setCustomBoardState(initialState, 1)
+        self.board.setCustomBoardState(copy.deepcopy(initialState), 1)
         self.board.setDiceRoll([1,2])
         self.assertEqual(self.board.board,initialState)
         self.board.movePiece(1,2,1)
@@ -61,7 +61,7 @@ class TestBoardClass(unittest.TestCase):
     def test_noPieceAtOldPosition(self):
         initialState = [9999,0,0,-2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-9999]
         self.board.clearErrors()
-        self.board.setCustomBoardState(initialState, 1)
+        self.board.setCustomBoardState(copy.deepcopy(initialState), 1)
         self.board.setDiceRoll([1,2])
         self.assertEqual(self.board.board,initialState)
         self.board.movePiece(1,12,11)
@@ -71,7 +71,7 @@ class TestBoardClass(unittest.TestCase):
     def test_illegalPipError(self):
         initialState = [9999,0,0,-2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-9999]
         self.board.clearErrors()
-        self.board.setCustomBoardState(initialState, 1)
+        self.board.setCustomBoardState(copy.deepcopy(initialState), 1)
         self.board.setDiceRoll([1,2])
         self.assertEqual(self.board.board,initialState)
         self.board.movePiece(1,222,222)
@@ -81,7 +81,7 @@ class TestBoardClass(unittest.TestCase):
     def test_mustGoOutOfJailFirst(self):
         initialState = [9999,1,0,-2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-9999]
         self.board.clearErrors()
-        self.board.setCustomBoardState(initialState, 1)
+        self.board.setCustomBoardState(copy.deepcopy(initialState), 1)
         self.board.setDiceRoll([1,2])
         self.assertEqual(self.board.board,initialState)
         self.board.movePiece(1,2,1)
@@ -92,7 +92,7 @@ class TestBoardClass(unittest.TestCase):
         initialState = [9999,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,-1,0,\
                         0,0,0,0,0,0,-9999]
         self.board.clearErrors()
-        self.board.setCustomBoardState(initialState, 1)
+        self.board.setCustomBoardState(copy.deepcopy(initialState), 1)
         self.board.setDiceRoll([3,2])
         self.assertEqual(self.board.board,initialState)
         self.board.movePiece(1,2,'home')
@@ -104,7 +104,7 @@ class TestBoardClass(unittest.TestCase):
         initialState = [9999,0,0,0,1,0,0,0,0,0,0,0,0,0,0,\
                         0,0,1,0,0,0,-1,0,0,0,0,0,0,0,-9999]
         self.board.clearErrors()
-        self.board.setCustomBoardState(initialState, 1)
+        self.board.setCustomBoardState(copy.deepcopy(initialState), 1)
         self.board.setDiceRoll([3,2])
         self.assertEqual(self.board.board,initialState)
         self.board.movePiece(1, 2, 3)
@@ -115,7 +115,7 @@ class TestBoardClass(unittest.TestCase):
         initialState = [9999,0,1,0,1,0,0,0,0,0,0,0,0,0,0,\
                         0,0,1,0,0,0,-1,0,0,0,0,0,0,0,-9999]
         self.board.clearErrors()
-        self.board.setCustomBoardState(initialState, 1)
+        self.board.setCustomBoardState(copy.deepcopy(initialState), 1)
         self.board.setDiceRoll([3,2])
         self.assertEqual(self.board.board,initialState)
         self.board.movePiece(1, 'home', 3)
@@ -126,7 +126,7 @@ class TestBoardClass(unittest.TestCase):
         initialState = [9999,0,0,0,1,0,0,0,0,0,0,0,0,0,0,\
                         0,0,1,0,0,0,-1,0,0,0,0,0,0,0,-9999]
         self.board.clearErrors()
-        self.board.setCustomBoardState(initialState, 1)
+        self.board.setCustomBoardState(copy.deepcopy(initialState), 1)
         self.board.setDiceRoll([5,5])
         self.assertEqual(self.board.board,initialState)
         self.board.movePiece(1, 2, 1)
@@ -140,7 +140,7 @@ class TestBoardClass(unittest.TestCase):
         finalState[1] = 0
         finalState[-4] = 1
         self.board.clearErrors()
-        self.board.setCustomBoardState(initialState, 1)
+        self.board.setCustomBoardState(copy.deepcopy(initialState), 1)
         self.board.setDiceRoll([1,4])
         self.assertEqual(self.board.board,initialState)
         self.board.movePiece(1, 'jail', 24)
@@ -173,7 +173,6 @@ class TestBoardClass(unittest.TestCase):
         self.assertEqual(self.board.board,initialState)
         self.assertIn('2 or more opposing pieces at new position', self.board.errors )
 
-
     def test_movePieceHome(self):
         for dice in [[1,4],[4,4],[3,3]]:
             initialState = [9999,0,0,0,1,0,0,0,0,0,0,0,0,0,0,\
@@ -202,7 +201,38 @@ class TestBoardClass(unittest.TestCase):
             self.assertEqual(self.board.board,initialState)
             self.assertEqual([], self.board.errors )
 
+    def test_moveToOwnSoloPiece(self):
+        initialState = [9999,0,0,1,1,0,0,0,0,0,0,0,0,0,0,\
+                        0,0,1,0,0,0,-1,0,0,0,0,0,0,0,-9999]
+        self.board.clearErrors()
+        self.board.setCustomBoardState(copy.deepcopy(initialState), 1)
+        self.board.setDiceRoll([1,2])
+        self.assertEqual(self.board.board,initialState)
+        self.board.movePiece(1, 2, 1)
+        finalState = copy.deepcopy(initialState)
+        finalState[3] = 2
+        finalState[4] = 0
+        self.assertEqual(self.board.board,finalState)
+        logging.debug(initialState)
+        logging.debug(self.board.board)
+        logging.debug(self.board.errors)
 
+    def test_getOutOfJailBug1(self):
+        initialState = [9999, 1, 0, 0, 0, -1, 0, 0, 5, 0, \
+                        3,-1,0,0,-4,4,0,0,0,-3,-1,-5,1,0,1,0,0,0,0,-9999]
+        self.board.clearErrors()
+        self.board.setCustomBoardState(copy.deepcopy(initialState),1)
+        self.board.setDiceRoll([3,5])
+        self.assertEqual(self.board.board,initialState)
+        self.board.movePiece(1, 'jail', 20)
+        finalState = copy.deepcopy(initialState)
+        finalState[1] = 0
+        finalState[22] = 2
+        logging.debug(initialState)
+        logging.debug(self.board.board)
+        logging.debug(finalState)
+        logging.debug(self.board.errors)
+        self.assertEqual(self.board.board,finalState)
 
 
 

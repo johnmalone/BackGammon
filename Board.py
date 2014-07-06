@@ -306,7 +306,7 @@ class Board () :
                 return False
             self.dice.remove(posDiff)
 
-            if self.board[newPosIdx] == 1 or self.board[newPosIdx] == -1:
+            if (self.board[newPosIdx] != 0) and ((self.board[newPosIdx] > 0) != (player > 0)):
                 self.board[self.HIS_JAIL] -= player
                 self.board[newPosIdx] += player
             self.board[oldPosIdx] -= player
@@ -336,7 +336,7 @@ class Board () :
                 return False
 
             self.board[self.MY_JAIL] -= player
-            if self.board[newPosIdx] == 1 or self.board[newPosIdx] == -1:
+            if (self.board[newPosIdx] != 0) and ((self.board[newPosIdx] > 0) != (player > 0)):
                 self.board[self.HIS_JAIL] -= player
                 self.board[newPosIdx] += player
             self.board[newPosIdx] += player
