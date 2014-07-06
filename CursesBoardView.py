@@ -191,7 +191,6 @@ class CursesBoard () :
     def draw_checkers_in_jail(self) :
         for player in [-1,1]:
             jailCount = self.boardObj.getJailCountForPlayer(player)
-            logging.debug('jail draw for {0} {1}'.format(player, jailCount))
             if not jailCount:
                 continue
             win = self.jail[player]

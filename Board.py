@@ -75,7 +75,6 @@ class Board () :
         return abs(self.board[self.MY_HOME])
 
     def userError(self, msg):
-        logging.debug(msg)
         self.errors.insert(0,msg)
 
     def clearErrors(self):
@@ -112,8 +111,9 @@ class Board () :
     def getDoubleCube(self) :
         return self.doubleCube
 
-    def getJail(self):
-        return self.jail
+    def isPlayerInJail(self, player):
+        self.setBoardForPlayer(player)
+        return (self.board[self.MY_JAIL] != 0)
 
     def getHome(self):
         return self.home
@@ -168,7 +168,6 @@ class Board () :
                 continue
             for i,die in enumerate(self.dice):
                 destPip = pos - die
-                logging.debug('destPip {0}, pos:{1}'.format(destPip,pos))
                 if destPip > self.MY_ACE+23:
                     destPip = self.MY_HOME
                 if self.canPieceMoveToPosition(pos, destPip):

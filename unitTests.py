@@ -1,4 +1,5 @@
 from Board import Board
+from BGEngine import BGEngine
 import unittest
 import copy
 import logging
@@ -238,6 +239,48 @@ class TestBoardClass(unittest.TestCase):
         moveAvailable = self.board.playerHasMoveAvailable()
         self.assertFalse(moveAvailable)
         self.assertIn('2 or more opposing pieces at new position', self.board.errors )
+
+class TestEngineClass(unittest.TestCase):
+    def setUp(self):
+        self.board = Board()
+
+    def test_onePieceToMove(self):
+        self.board.setDefaultBoardState()
+        initialState = [9999,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-9999]
+        self.board.clearErrors()
+        self.board.setCustomBoardState(copy.deepcopy(initialState), 1)
+        self.board.setDiceRoll([1,2])
+        self.assertEqual(self.board.board,initialState)
+        engine = BGEngine(copy.deepcopy(self.board))
+        engine.addDice(copy.deepcopy(self.board.getActiveDice()))
+        move = engine.getMoveForPlayer(1)
+        self.assertEqual(move,[(11,9),(9,8)])
+
+    def test_onePieceInJailPosPlayer(self):
+        self.board.setDefaultBoardState()
+        initialState = [9999,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-9999]
+        self.board.clearErrors()
+        self.board.setCustomBoardState(copy.deepcopy(initialState), 1)
+        self.board.setDiceRoll([1,2])
+        self.assertEqual(self.board.board,initialState)
+        engine = BGEngine(copy.deepcopy(self.board))
+        engine.addDice(copy.deepcopy(self.board.getActiveDice()))
+        move = engine.getMoveForPlayer(1)
+        self.assertEqual(move,[('jail',24),(24,22)])
+
+    def test_onePieceInJailNegPlayer(self):
+        self.board.setDefaultBoardState()
+        initialState = [9999,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-9999]
+        self.board.clearErrors()
+        self.board.setCustomBoardState(copy.deepcopy(initialState), -1)
+        self.board.setDiceRoll([1,2])
+        engine = BGEngine(copy.deepcopy(self.board))
+        engine.addDice(copy.deepcopy(self.board.getActiveDice()))
+        move = engine.getMoveForPlayer(-1)
+        self.assertEqual(move,[('jail',1),(1,3)])
+
+
+
 
 
 

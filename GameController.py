@@ -38,8 +38,6 @@ class GameController():
         activeDice = self.board.getActiveDice()
         self.boardView.setActiveDice(copy.deepcopy(activeDice))
         self.boardView.addBoardObj(self.board)
-        logging.debug(self.board.board)
-        logging.debug(self.board.getTurn())
         if not dice:
             self.boardView.addDice(copy.deepcopy(activeDice))
         else :
@@ -140,6 +138,9 @@ class GameController():
                     bgEngine = BGEngine(copy.deepcopy(self.board))
                     bgEngine.addDice(copy.deepcopy(self.board.getActiveDice()))
                     move = bgEngine.getMoveForPlayer(self.board.getTurn())
+                    if not move:
+                        logging.debug(self.board.board)
+                        logging.debug(dice)
                     error = self.doComputerMove(move, dice, testing)
                 else:
                     error = self.doHumanMove()
@@ -152,6 +153,9 @@ class GameController():
                     bgEngine = BGEngine(copy.deepcopy(self.board))
                     bgEngine.addDice(copy.deepcopy(self.board.getActiveDice()))
                     move = bgEngine.getMoveForPlayer(self.board.getTurn())
+                    if not move:
+                        logging.debug(self.board.board)
+                        logging.debug(dice)
                     error = self.doComputerMove(move, dice,testing)
 
             if not error and self.board.gameIsOver():
