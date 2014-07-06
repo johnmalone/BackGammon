@@ -125,17 +125,21 @@ class Board () :
         convert the incoming position to an index 
         from POV of self.turn"""
     def convertViewPosToIdx(self, viewPos):
+        idx = False
         if viewPos == 'jail':
             return self.MY_JAIL
         elif viewPos == 'home':
             return self.MY_HOME
         elif int(viewPos) >= 1 or int(viewPos) <= 24:
             if self.turn > 0:
-                return self.MY_ACE+(int(viewPos)-1)
+                idx = self.MY_ACE+(int(viewPos)-1)
             else:
-                return self.MY_ACE+(24 - int(viewPos))
-        else:
+                idx = self.MY_ACE+(24 - int(viewPos))
+        try:
+            pos = self.board[idx]
+        except IndexError:
             return False
+        return idx
 
     def resetView(self):
         if self.board[0] == 9999:
@@ -232,9 +236,9 @@ class Board () :
                 end = 24
 
             for i in range(start,end) :
-                if self.doesPositionHaveSameTypeOfPiece(i, self.turn) :
-                    self.userError('Pieces cant be moved off until all pieces \
-                            are in the last 6 places for that player.')
+                if self.doesPositionHaveSameTypeOfPiece(self.MY_ACE+i, self.turn) :
+                    self.userError('Pieces cant be moved off until all pieces '+\
+                                    'are in the last 6 places for that player.')
                     return False
             return True # needs testing
 
@@ -249,12 +253,12 @@ class Board () :
         if oldPosIdx == self.MY_JAIL and newPosIdx != self.MY_HOME:
             return True
 
-        if oldPosIdx < newPosIdx :
-            self.userError('Pieces can only move forward')
-            return False
-
         if oldPosIdx == self.MY_HOME:
             self.userError('Piece cant move out of home')
+            return False
+
+        if oldPosIdx < newPosIdx :
+            self.userError('Pieces can only move forward')
             return False
 
         return True
@@ -287,11 +291,9 @@ class Board () :
         if not oldPosIdx or not newPosIdx:
             self.userError('Illegal pip error')
             return False
-
         self.setBoardForPlayer(self.turn)
 
         if not self.canPieceMoveToPosition(oldPosIdx, newPosIdx) :
-            self.userError('Cant move to that position')
             return False
 
         if oldPosIdx != self.MY_JAIL and newPosIdx != self.MY_HOME:
@@ -301,7 +303,6 @@ class Board () :
 
             posDiff = abs(oldPosIdx - newPosIdx)
             if not self.areDiceLegit(posDiff) :
-                self.userError('Dice are not legit')
                 return False
             self.dice.remove(posDiff)
 
@@ -314,8 +315,6 @@ class Board () :
         elif newPosIdx == self.MY_HOME:
             #changed from previous version. logic different...
             for i,diceInList in enumerate(self.dice):
-                logging.debug(diceInList)
-                logging.debug(oldPosIdx)
                 if diceInList >= (oldPosIdx - (self.MY_ACE-1)):
                     self.dice.remove(diceInList)
                     self.board[int(oldPosIdx)] -= player
@@ -337,8 +336,9 @@ class Board () :
                 return False
 
             self.board[self.MY_JAIL] -= player
-            if self.board[newPosIdx] > 1 or self.board[newPosIdx] < -1:
+            if self.board[newPosIdx] == 1 or self.board[newPosIdx] == -1:
                 self.board[self.HIS_JAIL] -= player
+                self.board[newPosIdx] += player
             self.board[newPosIdx] += player
 
             self.dice.remove(pos)
