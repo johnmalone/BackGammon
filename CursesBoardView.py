@@ -1,5 +1,6 @@
 import curses, curses.panel
 import logging
+from time import sleep
 
 logging.basicConfig(filename='/tmp/curses.log',level=logging.DEBUG)
 
@@ -52,7 +53,6 @@ class CursesBoard () :
         return self.checkers[player]
 
     def returnViewPlayerFromBoardPlayer(self,boardPlayer):
-        logging.debug('boardPlayer {0}'.format(boardPlayer))
         if boardPlayer > 0 :
             return 1
         else:
@@ -144,7 +144,7 @@ class CursesBoard () :
                 if i > 4 :
                     if count < 9:
                         char = str(count)
-                    else: 
+                    else:
                         char = '*'
                     add = 5
                 else :
@@ -188,19 +188,16 @@ class CursesBoard () :
         self.draw_checkers_in_home()
         self.draw_dice()
 
-
     def draw_checkers_in_jail(self) :
-        for player in [1,-1]:
+        for player in [-1,1]:
             jailCount = self.boardObj.getJailCountForPlayer(player)
+            logging.debug('jail draw for {0} {1}'.format(player, jailCount))
             if not jailCount:
                 continue
             win = self.jail[player]
             for l in range(jailCount):
                 char = self.checkers[player]
-                if player == 1:
-                    win.addch(l+1,1,char)
-                else :
-                    win.addch(((self.playPanelHeight//2)-2) - l, 1, char)
+                win.addch(l+1,1,char)
 
     def draw_checkers_in_home(self) :
         for player in [-1,1]:
@@ -211,7 +208,7 @@ class CursesBoard () :
             win = self.home[player]
             m = 0;
             n = 1;
-            for l in range(homeCount+1):
+            for l in range(homeCount):
                 if m < 5 :
                    m += 1
                 else:
@@ -273,8 +270,8 @@ class CursesBoard () :
             onePip = {'y': 0,'x': coord, 'win': win3}
             self.pipMap.append(onePip)
 
-        self.jail.insert(2,win6)
-        self.jail.insert(1,win7)
+        self.jail.insert(2,win7)
+        self.jail.insert(1,win6)
 
         self.home.insert(2,win4)
         self.home.insert(1,win5)

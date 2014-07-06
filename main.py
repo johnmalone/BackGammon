@@ -9,8 +9,8 @@ state = []
 
 state.insert(0, -9999)
 state.insert(1, -3) #  -1 jail
-state.insert(2, 0) #  -1 home
-state.insert(3, 0)
+state.insert(2, -3) #  -1 home
+state.insert(3, 2)
 state.insert(4, 0)
 state.insert(5, 0)
 state.insert(6, 0)
@@ -29,17 +29,17 @@ state.insert(18, 0)
 state.insert(19, 0)
 state.insert(20, 0)
 state.insert(21, 0)
-state.insert(22, -3)
+state.insert(22, 0)
 state.insert(23, 0)
 state.insert(24, 0)
 state.insert(25, 0)
-state.insert(26, 0)
-state.insert(27, 0) # 1 home
-state.insert(28, 1) # 1 jail
+state.insert(26, -2)
+state.insert(27, 2) # 1 home
+state.insert(28, 2) # 1 jail
 state.insert(29, 9999)
 
 gc = GameController()
-gc.setCustomBoardState(state, 1)
+#gc.setCustomBoardState(state, 1)
 gc.gameLoop()
 
 

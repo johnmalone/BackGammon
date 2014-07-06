@@ -39,6 +39,7 @@ class GameController():
         self.boardView.setActiveDice(copy.deepcopy(activeDice))
         self.boardView.addBoardObj(self.board)
         logging.debug(self.board.board)
+        logging.debug(self.board.getTurn())
         if not dice:
             self.boardView.addDice(copy.deepcopy(activeDice))
         else :

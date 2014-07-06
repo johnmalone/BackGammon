@@ -60,6 +60,7 @@ class Board () :
     def setCustomBoardState(self, boardState, turn):
         self.turn = turn
         self.board =  boardState
+        self.setBoardForPlayer(turn)
 
     def getPipAtIdx(self,idx):
         self.setBoardForPlayer(1)
