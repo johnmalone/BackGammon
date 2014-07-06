@@ -200,7 +200,8 @@ class Board () :
                 self.userError('Piece in Jail not moved correctly')
                 return False
 
-        if self.doesPositionHave2OrMoreOppostionPieces(dice, movingPlayer) :
+        destPos = 25 - dice
+        if self.doesPositionHave2OrMoreOppostionPieces(destPos, movingPlayer) :
             self.userError('2 or more opposing pieces at new position')
             return False
 
@@ -371,7 +372,7 @@ class Board () :
 
     """Accepts view positions (1->24)"""
     def doesPositionHave2OrMoreOppostionPieces(self, posIdx, player):
-        if self.board[posIdx] > -2 and self.board[posIdx] < 2:
+        if abs(self.board[posIdx]) < 2:
             return False
 
         return self.doesPositionHaveSameTypeOfPiece(posIdx, player*-1)

@@ -46,6 +46,7 @@ class TestBoardClass(unittest.TestCase):
         self.board.setDiceRoll([1,2])
         self.assertEqual(self.board.board,initialState)
         self.board.movePiece(1,2,1)
+        self.assertEqual(self.board.errors,[])
         self.assertEqual(self.board.board,finalState)
 
     def test_illegalMoveOppPieces(self):
@@ -213,9 +214,6 @@ class TestBoardClass(unittest.TestCase):
         finalState[3] = 2
         finalState[4] = 0
         self.assertEqual(self.board.board,finalState)
-        logging.debug(initialState)
-        logging.debug(self.board.board)
-        logging.debug(self.board.errors)
 
     def test_getOutOfJailBug1(self):
         initialState = [9999, 1, 0, 0, 0, -1, 0, 0, 5, 0, \
@@ -228,11 +226,18 @@ class TestBoardClass(unittest.TestCase):
         finalState = copy.deepcopy(initialState)
         finalState[1] = 0
         finalState[22] = 2
-        logging.debug(initialState)
-        logging.debug(self.board.board)
-        logging.debug(finalState)
-        logging.debug(self.board.errors)
         self.assertEqual(self.board.board,finalState)
+
+    def test_noValidMoves(self):
+        initialState = [9999,1,0,0,0,0,0,0,0,0,0,0,0,0,0,\
+                        0,0,0,0,0,0,-2,-2,-2,-2,-2,-2,0,0,-9999]
+        self.board.clearErrors()
+        self.board.setCustomBoardState(copy.deepcopy(initialState), 1)
+        self.board.setDiceRoll([1,2])
+        self.assertEqual(self.board.board,initialState)
+        moveAvailable = self.board.playerHasMoveAvailable()
+        self.assertFalse(moveAvailable)
+        self.assertIn('2 or more opposing pieces at new position', self.board.errors )
 
 
 
