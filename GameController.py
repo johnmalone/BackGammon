@@ -82,6 +82,7 @@ class GameController():
         error = False
         for oneMove in move:
             moveStr = " ".join(str(i) for i in oneMove)
+            logging.debug('applying move {0} to board {1} for player {2} with dice {3}'.format(moveStr, ",".join(str(x) for x in self.board.board), str(self.board.getTurn()), dice))
             if not self.doMove(self.board.getTurn(), moveStr):
                 error = True
                 return error
@@ -126,6 +127,7 @@ class GameController():
             if not self.board.playerHasMoveAvailable():
                 self.boardView.addErrorMessage('Player {0} has no moves available with dice {1},{2}!'\
                                                 .format(self.boardView.returnViewPlayerFromBoardPlayer(self.board.getTurn()), dice[0], dice[1] ))
+                logging.debug('No move for {0}'.format(self.board.getTurn()))
                 self.board.toggleTurn()
                 dice = self.doDiceRoll()
                 self.board.setDiceRoll(copy.deepcopy(dice))
@@ -139,8 +141,7 @@ class GameController():
                     bgEngine.addDice(copy.deepcopy(self.board.getActiveDice()))
                     move = bgEngine.getMoveForPlayer(self.board.getTurn())
                     if not move:
-                        logging.debug(self.board.board)
-                        logging.debug(dice)
+                        logging.debug('FAIL getting move for board {0} for player {1} with dice {2}'.format(",".join(str(x) for x in self.board.board), str(self.board.getTurn()), dice))
                     error = self.doComputerMove(move, dice, testing)
                 else:
                     error = self.doHumanMove()
@@ -154,8 +155,7 @@ class GameController():
                     bgEngine.addDice(copy.deepcopy(self.board.getActiveDice()))
                     move = bgEngine.getMoveForPlayer(self.board.getTurn())
                     if not move:
-                        logging.debug(self.board.board)
-                        logging.debug(dice)
+                        logging.debug('FAIL getting move for board {0} for player {1} with dice {2}'.format(",".join(str(x) for x in self.board.board), str(self.board.getTurn()), dice))
                     error = self.doComputerMove(move, dice,testing)
 
             if not error and self.board.gameIsOver():
