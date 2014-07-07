@@ -115,6 +115,15 @@ class Board () :
         self.setBoardForPlayer(player)
         return (self.board[self.MY_JAIL] != 0)
 
+    def canPlayerMoveOff(self, player):
+        self.setBoardForPlayer(player)
+        for pip in self.board[self.MY_ACE+6:self.MY_ACE+24]:
+            if pip == 0:
+                continue
+            if (pip > 0) == (player > 0):
+                return False
+        return True
+
     def getHome(self):
         return self.home
 
@@ -228,19 +237,9 @@ class Board () :
             return False
 
         if newPosIdx == self.MY_HOME :
-            if self.turn == -1:
-                start = 0
-                end = 18
-            else :
-                start = 6
-                end = 24
-
-            for i in range(start,end) :
-                if self.doesPositionHaveSameTypeOfPiece(self.MY_ACE+i, self.turn) :
-                    self.userError('Pieces cant be moved off until all pieces '+\
-                                    'are in the last 6 places for that player.')
-                    return False
-            return True # needs testing
+            if self.canPlayerMoveOff(self.turn):
+                return True # needs testing
+            return False
 
         if self.doesPositionHave2OrMoreOppostionPieces(newPosIdx, self.turn) :
             self.userError('2 or more opposing pieces at new position')
@@ -315,7 +314,7 @@ class Board () :
         elif newPosIdx == self.MY_HOME:
             #changed from previous version. logic different...
             for i,diceInList in enumerate(self.dice):
-                if diceInList >= (oldPosIdx - (self.MY_ACE-1)):
+                if diceInList >= oldPosIdx-(self.MY_ACE-1):
                     self.dice.remove(diceInList)
                     self.board[int(oldPosIdx)] -= player
                     self.board[self.MY_HOME] += player
@@ -326,7 +325,7 @@ class Board () :
             canMoveOut = False
             for i,diceInList in enumerate(self.dice):
                 if not canMoveOut or self.canPieceMoveOutOfJail(diceInList) :
-                    canMoveOut = True 
+                    canMoveOut = True
             if not canMoveOut:
                 return False
 

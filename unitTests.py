@@ -254,7 +254,7 @@ class TestEngineClass(unittest.TestCase):
         engine = BGEngine(copy.deepcopy(self.board))
         engine.addDice(copy.deepcopy(self.board.getActiveDice()))
         move = engine.getMoveForPlayer(1)
-        self.assertEqual(move,[(11,9),(9,8)])
+        self.assertEqual(move,[(10,9),(9,7)])
 
     def test_onePieceInJailPosPlayer(self):
         self.board.setDefaultBoardState()
@@ -278,7 +278,7 @@ class TestEngineClass(unittest.TestCase):
         engine.addDice(copy.deepcopy(self.board.getActiveDice()))
         move = engine.getMoveForPlayer(-1)
         self.assertEqual(move,[('jail',1),(1,3)])
-	
+
     def test_getMovesReturnsFalse(self):
         self.board.setDefaultBoardState()
         initialState = [9999,1,0,0,0,0,0,0,5,0,3,1,0,0,-4,4,1,0,-1,-4,-1,-5,0,0,0,0,0,0,0,-9999]
@@ -292,10 +292,10 @@ class TestEngineClass(unittest.TestCase):
 
     def test_getMovesReturnsFalse2(self):
         self.board.setDefaultBoardState()
-        initialState = [9999, -1, 1, 1, 2, 2, 4, 2, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, -4, -3, -4, -3, 0, 0, -9999]
+        initialState = [9999,1,2,-1,3,5,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,-3,-5,-2,-1,0,0,0,-9999]
         self.board.clearErrors()
         self.board.setCustomBoardState(copy.deepcopy(initialState), 1)
-        self.board.setDiceRoll([3,6,])
+        self.board.setDiceRoll([3,5])
         engine = BGEngine(copy.deepcopy(self.board))
         engine.addDice(copy.deepcopy(self.board.getActiveDice()))
         move = engine.getMoveForPlayer(1)

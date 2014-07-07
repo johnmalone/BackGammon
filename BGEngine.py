@@ -65,14 +65,13 @@ class BGEngine():
                 pipList = list(range(1,25))
             else:
                 pipList = list(range(24,0,-1))
-        homeCheck = True
+        homeCheck = board.canPlayerMoveOff(player)
         jail = board.isPlayerInJail(player)
         board.setBoardForPlayer(player)
         state = board.board
         for die in dice:
 
             if jail:
-                homeCheck = False
                 cloneBoard = copy.deepcopy(board)
                 diceToPassOn = copy.deepcopy(dice)
                 if player == 1:
@@ -89,31 +88,11 @@ class BGEngine():
                     # continue here??
                     # we started in jail so no point in doing the stuff below
 
-            for pip in pipList:
-                pipIdx = board.convertViewPosToIdx(pip)
-                if board.doesPositionHaveSameTypeOfPiece(pipIdx,player):
-                    if player == 1 and pip > 6:
-                        homeCheck = False
-                    elif player == -1 and pip < 17:
-                        homeCheck = False
-                    diceToPassOn = copy.deepcopy(dice)
-                    cloneBoard = copy.deepcopy(board)
-                    if player == 1:
-                        newPip = pip - die
-                    else :
-                        newPip = pip + die
-                    if cloneBoard.movePiece(player, pip, newPip):
-                        cloneMove = copy.deepcopy(move)
-                        cloneMove.append((pip, newPip))
-                        diceToPassOn.remove(die)
-                        self.genMoves(cloneBoard, player, diceToPassOn, cloneMove,doubles,pip)
-                        moveTried = True
-
             if homeCheck:
                 if player == 1:
-                    lastFewPips = list(range(19,24))
+                    lastFewPips = list(range(6,0,-1))
                 else:
-                    lastFewPips = list(range(5,-1,-1))
+                    lastFewPips = list(range(19,25))
 
                 for pip in lastFewPips:
                     pipIdx = board.convertViewPosToIdx(pip)
@@ -126,6 +105,27 @@ class BGEngine():
                             diceToPassOn.remove(die)
                             self.genMoves(cloneBoard, player, diceToPassOn, cloneMove,doubles,pip)
                             moveTried = True
+
+            for pip in pipList:
+                pipIdx = board.convertViewPosToIdx(pip)
+                if board.doesPositionHaveSameTypeOfPiece(pipIdx,player):
+                    diceToPassOn = copy.deepcopy(dice)
+                    cloneBoard = copy.deepcopy(board)
+                    if player == 1:
+                        newPip = pip - die
+                    else :
+                        newPip = pip + die
+                    if newPip <= 0:
+                        continue
+                    if newPip >= 25:
+                        continue
+                    if cloneBoard.movePiece(player, pip, newPip):
+                        cloneMove = copy.deepcopy(move)
+                        cloneMove.append((pip, newPip))
+                        diceToPassOn.remove(die)
+                        self.genMoves(cloneBoard, player, diceToPassOn, cloneMove,doubles,pip)
+                        moveTried = True
+
         # if we end up using less than our dice pass up a move with less than
         # the full amount
         if not moveTried and move:

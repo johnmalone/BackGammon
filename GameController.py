@@ -82,7 +82,7 @@ class GameController():
         error = False
         for oneMove in move:
             moveStr = " ".join(str(i) for i in oneMove)
-            logging.debug('applying move {0} to board {1} for player {2} with dice {3}'.format(moveStr, ",".join(str(x) for x in self.board.board), str(self.board.getTurn()), dice))
+            logging.debug('applying move {0} to board {1} for player {2} with dice {3}'.format(oneMove, ",".join(str(x) for x in self.board.board), str(self.board.getTurn()), dice))
             if not self.doMove(self.board.getTurn(), moveStr):
                 error = True
                 return error
@@ -142,6 +142,7 @@ class GameController():
                     move = bgEngine.getMoveForPlayer(self.board.getTurn())
                     if not move:
                         logging.debug('FAIL getting move for board {0} for player {1} with dice {2}'.format(",".join(str(x) for x in self.board.board), str(self.board.getTurn()), dice))
+                        import pdb; pdb.set_trace()
                     error = self.doComputerMove(move, dice, testing)
                 else:
                     error = self.doHumanMove()
@@ -156,6 +157,7 @@ class GameController():
                     move = bgEngine.getMoveForPlayer(self.board.getTurn())
                     if not move:
                         logging.debug('FAIL getting move for board {0} for player {1} with dice {2}'.format(",".join(str(x) for x in self.board.board), str(self.board.getTurn()), dice))
+                        import pdb; pdb.set_trace()
                     error = self.doComputerMove(move, dice,testing)
 
             if not error and self.board.gameIsOver():
