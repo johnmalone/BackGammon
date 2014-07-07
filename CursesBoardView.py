@@ -1,8 +1,8 @@
 import curses, curses.panel
 import logging
+from time import sleep
 
 logging.basicConfig(filename='/tmp/curses.log',level=logging.DEBUG)
-
 
 class CursesBoard () :
     boardState = False
@@ -17,10 +17,10 @@ class CursesBoard () :
     def __init__(self,stdscr):
         self.stdscr = stdscr
         self.windowWidth = 70
-        self.windowHeight = 24 
-        self.playPanelWidth = 28 
+        self.windowHeight = 24
+        self.playPanelWidth = 28
         self.playPanelHeight = 15
-        self.checkers.insert(0, None)
+        self.checkers.insert(0,None)
         self.checkers.insert(1,curses.ACS_CKBOARD)
         self.checkers.insert(2,curses.ACS_DIAMOND)
         self.jail.insert(0,None)
@@ -41,7 +41,7 @@ class CursesBoard () :
     def addPromptText(self, text):
         self.promptText = text
 
-    def getUserInput(self): 
+    def getUserInput(self):
         curses.echo()
         curses.curs_set(True)
         userInput = self.prompt.getstr()
@@ -49,17 +49,23 @@ class CursesBoard () :
         curses.noecho()
         return userInput
 
+    def getTokenForPlayer(self,player):
+        return self.checkers[player]
+
+    def returnViewPlayerFromBoardPlayer(self,boardPlayer):
+        if boardPlayer > 0 :
+            return 1
+        else:
+            return 2
+
     def addErrorMessage(self, msg):
         self.errorMessage = msg
 
     def addState(self, state):
         self.boardState = state
 
-    def addJail(self, jail):
-        self.jailState = jail
-
-    def addHome(self, home):
-        self.homeState = home
+    def addBoardObj(self,board):
+        self.boardObj = board
 
     def draw_pip(self, pipDict) :
         pipDict['win'].addch(pipDict['y'], pipDict['x'], curses.ACS_VLINE)
@@ -69,7 +75,7 @@ class CursesBoard () :
             self.prompt.addstr(1,0,self.promptText)
         else:
             start = 'Player '
-            end = '\'s turn>' 
+            end = '\'s turn>'
             self.prompt.addstr(1,0,start)
             self.prompt.addch(1,len(start),self.checkers[activePlayer])
             self.prompt.addstr(1,len(start) + 1, end)
@@ -138,7 +144,7 @@ class CursesBoard () :
                 if i > 4 :
                     if count < 9:
                         char = str(count)
-                    else: 
+                    else:
                         char = '*'
                     add = 5
                 else :
@@ -170,50 +176,52 @@ class CursesBoard () :
                 pipInfo['win'].addch(y, pipInfo['x'], char)
 
     def draw_board_state(self):
-        for i,s in enumerate(self.boardState):
-            self.draw_checkers_at_pip(s.getPipCount(), s.getPlayerOnPip(), i)
+        self.boardObj.resetView()
+        for i in range(24):
+            tokens = self.boardObj.getPipAtIdx(i)
+            if tokens > 0 :
+                player = 1
+            else: # means pips with no players are -1, but thats fine
+                player = -1
+            self.draw_checkers_at_pip(abs(tokens),player, i)
         self.draw_checkers_in_jail()
         self.draw_checkers_in_home()
         self.draw_dice()
 
-
     def draw_checkers_in_jail(self) :
-        if not self.jailState :
-            return False
-
-        for player in range(1,3):
-            pieceList = self.jailState[player]
-            if pieceList:
-                win = self.jail[player]
-                for l,piece in enumerate(pieceList):
-                    if player == 1:
-                        win.addch(l+1,1,self.checkers[piece.getPlayer()])
-                    else :
-                        win.addch(((self.playPanelHeight//2)-2) - l, 1, self.checkers[piece.getPlayer()])
+        for player in [-1,1]:
+            jailCount = self.boardObj.getJailCountForPlayer(player)
+            if not jailCount:
+                continue
+            win = self.jail[player]
+            for l in range(jailCount):
+                char = self.checkers[player]
+                win.addch(l+1,1,char)
 
     def draw_checkers_in_home(self) :
-        if not self.homeState :
-            return False
+        for player in [-1,1]:
+            homeCount = self.boardObj.getHomeCountForPlayer(player)
+            if not homeCount:
+                continue
 
-        for k,pieceList in self.homeState.items():
-            win = self.home[k]
+            win = self.home[player]
             m = 0;
             n = 1;
-            for l,piece in enumerate(pieceList):
+            for l in range(homeCount):
                 if m < 5 :
-                    m += 1
+                   m += 1
                 else:
                     m = 1
                     n += 1
-                win.addch(n,m,self.checkers[piece.getPlayer()])
+                win.addch(n,m,self.checkers[player])
 
     def createBoard(self, activePlayer):
         try:
             curses.curs_set(0)
         except:
             pass
-
-        self.pipMap = []
+        self.boardObj.setBoardForPlayer(1)
+        activePlayer = self.returnViewPlayerFromBoardPlayer(activePlayer)
         homePanelWidth = (self.windowWidth - ((self.playPanelWidth*2)+7))
         win1, panel1 = self.make_panel(self.windowHeight, self.windowWidth, 0, 0, "Main Board")
         self.mainBoard = win1
@@ -240,11 +248,11 @@ class CursesBoard () :
         self.dice1,panel10 = self.make_panel(3,3, (self.playPanelHeight//2)+1, (self.windowWidth - (homePanelWidth+3)), "2")
         self.dice2,panel11 = self.make_panel(3,3, (self.playPanelHeight//2)+1, (self.windowWidth - (homePanelWidth-1)), "2")
 
+        self.pipMap = []
         for pos in range(0,6) :
             coord = int((self.playPanelWidth / 7) * (6-pos))
             onePip = {'y': self.playPanelHeight-1,'x': coord, 'win': win3}
             self.pipMap.append(onePip)
-
 
         for pos in range(6,12) :
             coord = int((self.playPanelWidth / 7) * (12-pos))
@@ -261,11 +269,11 @@ class CursesBoard () :
             onePip = {'y': 0,'x': coord, 'win': win3}
             self.pipMap.append(onePip)
 
-        self.jail.insert(1,win6)
         self.jail.insert(2,win7)
+        self.jail.insert(1,win6)
 
-        self.home.insert(1,win4)
-        self.home.insert(2,win5)
+        self.home.insert(2,win4)
+        self.home.insert(1,win5)
 
         self.draw_prompt(activePlayer)
 
@@ -280,10 +288,7 @@ class CursesBoard () :
 
         curses.panel.update_panels()
         self.stdscr.refresh()
-        #self.stdscr.getkey()
 
-    def drawBoard(self):
-        pass
 
 def bgBoard(stdscr) :
     board = CursesBoard(stdscr)

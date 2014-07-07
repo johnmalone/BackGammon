@@ -19,8 +19,8 @@ class GameController():
         self.initCurses()
         self.boardView = CursesBoard(self.stdscr)
 
-    def setCustomBoardState(self, state, jail, turn):
-        self.board.setCustomBoardState(state, jail, turn)
+    def setCustomBoardState(self, state, turn):
+        self.board.setCustomBoardState(state, turn)
 
     def initCurses(self):
         self.stdscr = curses.initscr()
@@ -37,9 +37,7 @@ class GameController():
     def setupBoardView(self, dice = False):
         activeDice = self.board.getActiveDice()
         self.boardView.setActiveDice(copy.deepcopy(activeDice))
-        self.boardView.addState(self.board.getBoardState())
-        self.boardView.addJail(self.board.getJail())
-        self.boardView.addHome(self.board.getHome())
+        self.boardView.addBoardObj(self.board)
         if not dice:
             self.boardView.addDice(copy.deepcopy(activeDice))
         else :
@@ -84,6 +82,7 @@ class GameController():
         error = False
         for oneMove in move:
             moveStr = " ".join(str(i) for i in oneMove)
+            logging.debug('applying move {0} to board {1} for player {2} with dice {3}'.format(oneMove, ",".join(str(x) for x in self.board.board), str(self.board.getTurn()), dice))
             if not self.doMove(self.board.getTurn(), moveStr):
                 error = True
                 return error
@@ -121,14 +120,14 @@ class GameController():
                 return True
             else:
                 self.boardView.addPromptText('(h)uman; (c)omputer; (t)est; (q)uit?> ')
-
         self.boardView.addPromptText(False)
         self.setupBoardView()
 
         while True:
             if not self.board.playerHasMoveAvailable():
                 self.boardView.addErrorMessage('Player {0} has no moves available with dice {1},{2}!'\
-                                                .format(self.board.getTurn(), dice[0], dice[1] ))
+                                                .format(self.boardView.returnViewPlayerFromBoardPlayer(self.board.getTurn()), dice[0], dice[1] ))
+                logging.debug('No move for {0}'.format(self.board.getTurn()))
                 self.board.toggleTurn()
                 dice = self.doDiceRoll()
                 self.board.setDiceRoll(copy.deepcopy(dice))
@@ -141,6 +140,9 @@ class GameController():
                     bgEngine = BGEngine(copy.deepcopy(self.board))
                     bgEngine.addDice(copy.deepcopy(self.board.getActiveDice()))
                     move = bgEngine.getMoveForPlayer(self.board.getTurn())
+                    if not move:
+                        logging.debug('FAIL getting move for board {0} for player {1} with dice {2}'.format(",".join(str(x) for x in self.board.board), str(self.board.getTurn()), dice))
+                        import pdb; pdb.set_trace()
                     error = self.doComputerMove(move, dice, testing)
                 else:
                     error = self.doHumanMove()
@@ -153,6 +155,9 @@ class GameController():
                     bgEngine = BGEngine(copy.deepcopy(self.board))
                     bgEngine.addDice(copy.deepcopy(self.board.getActiveDice()))
                     move = bgEngine.getMoveForPlayer(self.board.getTurn())
+                    if not move:
+                        logging.debug('FAIL getting move for board {0} for player {1} with dice {2}'.format(",".join(str(x) for x in self.board.board), str(self.board.getTurn()), dice))
+                        import pdb; pdb.set_trace()
                     error = self.doComputerMove(move, dice,testing)
 
             if not error and self.board.gameIsOver():
