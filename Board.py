@@ -323,9 +323,12 @@ class Board () :
             return False
 
         else:
+            canMoveOut = False
             for i,diceInList in enumerate(self.dice):
-                if not self.canPieceMoveOutOfJail(diceInList) :
-                    return False
+                if not canMoveOut or self.canPieceMoveOutOfJail(diceInList) :
+                    canMoveOut = True 
+            if not canMoveOut:
+                return False
 
             if player > 0:
                 pos = 25 - int(newPosition)
