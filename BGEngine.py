@@ -25,7 +25,6 @@ class BGEngine():
         return self.bestMove
 
     def analyseMove(self,move,board, player):
-        return True # dumb things down for a while...
         if not self.bestMove:
             return True
         else :
@@ -130,3 +129,17 @@ class BGEngine():
         # the full amount
         if not moveTried and move:
                 self.addMove(move, board,player)
+
+
+class AnalyseBoard():
+    def __init__(self, board):
+        self.board = board
+
+    def getBoardScoreForPlayer(self, player):
+        blotScore = self.getBlotDanger(player)
+
+    def getBlotDanger(self, player):
+        pass
+
+
+
