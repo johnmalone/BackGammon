@@ -220,6 +220,12 @@ class CursesBoard () :
             curses.curs_set(0)
         except:
             pass
+        self.jail = []
+        self.home = []
+
+        self.jail.insert(0,None)
+        self.home.insert(0,None)
+
         self.boardObj.setBoardForPlayer(1)
         activePlayer = self.returnViewPlayerFromBoardPlayer(activePlayer)
         homePanelWidth = (self.windowWidth - ((self.playPanelWidth*2)+7))

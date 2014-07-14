@@ -133,8 +133,8 @@ class GameController():
                 self.board.setDiceRoll(copy.deepcopy(dice))
                 self.board.clearErrors()
                 self.setupBoardView()
-                sleep (1)
                 continue
+
             if self.board.getTurn() == 1:
                 if testing:
                     bgEngine = BGEngine(copy.deepcopy(self.board))

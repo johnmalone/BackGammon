@@ -8,8 +8,8 @@ from GameController import GameController
 state = []
 
 state.insert(0, -9999)
-state.insert(1, 0) #  -1 jail
-state.insert(2, 0) #  -1 home
+state.insert(1, -3) #  -1 jail
+state.insert(2, -3) #  -1 home
 state.insert(3, 0)
 state.insert(4, 0)
 state.insert(5, 0)
@@ -34,8 +34,8 @@ state.insert(23, 0)
 state.insert(24, 0)
 state.insert(25, 0)
 state.insert(26, 0)
-state.insert(27, 0) # 1 home
-state.insert(28, 0) # 1 jail
+state.insert(27, 3) # 1 home
+state.insert(28, 3) # 1 jail
 state.insert(29, 9999)
 
 gc = GameController()
