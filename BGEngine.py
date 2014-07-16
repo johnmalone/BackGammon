@@ -124,7 +124,32 @@ class AnalyseBoard():
     def getBoardScoreForPlayer(self, player):
         pipDiff = self.getPipCountDiff(player)
         blotScore = self.getBlotDanger(player)
-        return pipDiff + blotScore
+        runOfDoubles, doubleCount = self.getBlockersAndDoubles(player)
+        return pipDiff + blotScore + runOfDoubles + doubleCount
+
+    def getBlockersAndDoubles(self, player):
+        doubleCount = 0
+        runOfDoubles = 0
+        maxDoubleCount = doubleCount
+        runOfDoubles = False
+        for idx in self.board.getOutFieldRange():
+            if self.board.doesPositionHaveSameTypeOfPiece(idx,player):
+                if abs(self.board.board[idx]) >= 2:
+                    runOfDoubles = True
+                else:
+                    runOfDoubles = False
+            else:
+                    runOfDoubles = False
+
+            if runOfDoubles:
+                doubleCount += 1
+                runOfDoubles += 1
+                if runOfDoubles > maxDoubleCount:
+                    maxDoubleCount = runOfDoubles
+            else:
+                runOfDoubles = 0
+        return -1 * 4 * maxDoubleCount, -1 * 2 * doubleCount
+
 
     def getPipCountDiff(self,player):
         pipCount = self.board.getPipCount()
@@ -140,7 +165,7 @@ class AnalyseBoard():
             if self.board.doesPositionHaveBlotForPlayer(idx, player):
                 if self.isBlotInDanger(idx, player):
                     idxForBlots.append(idx)
-        return 2 * len(idxForBlots)
+        return 4 * len(idxForBlots)
 
     def isBlotInDanger(self,blotIdx, player):
         myList = list(self.board.getOutFieldRange())
