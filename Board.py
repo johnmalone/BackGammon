@@ -363,6 +363,19 @@ class Board () :
     def setDiceRoll(self, dice):
         self.dice = dice
 
+
+    def getOutFieldRange(self):
+        return range(self.MY_ACE, self.MY_ACE+24)
+
+    """0 indexed
+       returns True if posIdx contains 1 piece of player
+    """
+    def doesPositionHaveBlotForPlayer(self,posIdx, player):
+        if self.doesPositionHaveSameTypeOfPiece(posIdx, player):
+            if abs(self.board[posIdx]) == 1:
+                return True
+        return False
+
     """0 indexed"""
     def doesPositionHaveSameTypeOfPiece(self, posIdx, player) :
         if not self.board[posIdx]:

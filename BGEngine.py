@@ -8,7 +8,7 @@ class BGEngine():
     def __init__(self,board):
         self.board = copy.deepcopy(board)
         self.bestMove = False
-        self.bestPipDiff = -100000
+        self.bestScore = 100000
 
     def addDice(self, dice):
         self.dice = copy.deepcopy(dice)
@@ -25,24 +25,10 @@ class BGEngine():
         return self.bestMove
 
     def analyseMove(self,move,board, player):
-        if not self.bestMove:
-            return True
-        else :
-            pipCount = board.getPipCount()
-            if player == 1:
-                pipDiff = pipCount[str(player)] - pipCount['-1']
-            else :
-                pipDiff = pipCount[str(player)] - pipCount['1']
-            if pipDiff > self.bestPipDiff:
-                self.bestPipDiff = pipDiff
-                return True
-            else:
-                return False
-
-            if random.randint(1, 100) % 10 == 0 :
-                return True
-            else:
-                return False
+        analyseBoard = AnalyseBoard(board)
+        boardScore = analyseBoard.getBoardScoreForPlayer(player)
+        if boardScore < self.bestScore:
+            self.bestMove = move
 
     def addMove(self, move, board,player):
         if self.analyseMove(move, board,player):
@@ -136,10 +122,33 @@ class AnalyseBoard():
         self.board = board
 
     def getBoardScoreForPlayer(self, player):
+        pipDiff = self.getPipCountDiff(player)
         blotScore = self.getBlotDanger(player)
+        return pipDiff + blotScore
+
+    def getPipCountDiff(self,player):
+        pipCount = self.board.getPipCount()
+        if player == 1:
+            pipDiff = pipCount[str(player)] - pipCount['-1']
+        else :
+            pipDiff = pipCount[str(player)] - pipCount['1']
+        return pipDiff
 
     def getBlotDanger(self, player):
-        pass
+        idxForBlots = []
+        for idx in self.board.getOutFieldRange():
+            if self.board.doesPositionHaveBlotForPlayer(idx, player):
+                if self.isBlotInDanger(idx, player):
+                    idxForBlots.append(idx)
+        return 2 * len(idxForBlots)
 
-
-
+    def isBlotInDanger(self,blotIdx, player):
+        myList = list(self.board.getOutFieldRange())
+        for idx in myList[::-1]:
+            if idx < blotIdx:
+                if not self.board.doesPositionHaveSameTypeOfPiece(idx,player):
+                    if abs(self.board.board[idx]) == 1:
+                        blotDiff = blotIdx - idx
+                        if blotDiff < 12 or blotDiff in [15, 20, 24]:
+                            return True
+        return False
