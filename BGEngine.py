@@ -25,14 +25,13 @@ class BGEngine():
         return self.bestMove
 
     def analyseMove(self,move,board, player):
-        analyseBoard = AnalyseBoard(board)
+        analyseBoard = AnalyseBoard(board, move)
         boardScore = analyseBoard.getBoardScoreForPlayer(player)
         if boardScore < self.bestScore:
             self.bestMove = move
 
     def addMove(self, move, board,player):
-        if self.analyseMove(move, board,player):
-            self.bestMove = move
+        self.analyseMove(move, board,player)
 
     def genMoves(self, board, player, dice, move, doubles = False, lastPipIdx=False):
         moveTried = False
@@ -118,14 +117,23 @@ class BGEngine():
 
 
 class AnalyseBoard():
-    def __init__(self, board):
+    def __init__(self, board, move):
         self.board = board
+        self.move = move
 
     def getBoardScoreForPlayer(self, player):
         pipDiff = self.getPipCountDiff(player)
         blotScore = self.getBlotDanger(player)
         runOfDoubles, doubleCount = self.getBlockersAndDoubles(player)
-        return pipDiff + blotScore + runOfDoubles + doubleCount
+        moveOffScore = self.prioritizeMovingOff(player)
+        return pipDiff + blotScore + runOfDoubles + doubleCount + moveOffScore
+
+    def prioritizeMovingOff(self,player):
+        moveOffScore = 0
+        if self.board.canPlayerMoveOff(player):
+            if [oneMove for oneMove in self.move if oneMove[1] == 'home']:
+                moveOffScore -= 1000
+        return moveOffScore
 
     def getBlockersAndDoubles(self, player):
         doubleCount = 0
@@ -148,7 +156,7 @@ class AnalyseBoard():
                     maxDoubleCount = runOfDoubles
             else:
                 runOfDoubles = 0
-        return -1 * 4 * maxDoubleCount, -1 * 2 * doubleCount
+        return -1 * 4 * maxDoubleCount, -1 * 8 * doubleCount
 
 
     def getPipCountDiff(self,player):
