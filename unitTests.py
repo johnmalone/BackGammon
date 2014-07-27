@@ -99,8 +99,6 @@ class TestBoardClass(unittest.TestCase):
         self.assertEqual(self.board.board,initialState)
         self.board.movePiece(1,2,'home')
         self.assertEqual(self.board.board,initialState)
-        self.assertIn('Pieces cant be moved off until all pieces are in the '+\
-                        'last 6 places for that player.', self.board.errors )
 
     def test_mustMoveForward(self):
         initialState = [9999,0,0,0,1,0,0,0,0,0,0,0,0,0,0,\
@@ -289,20 +287,6 @@ class TestEngineClass(unittest.TestCase):
         engine.addDice(copy.deepcopy(self.board.getActiveDice()))
         move = engine.getMoveForPlayer(1)
         self.assertEqual(move,[('jail',23),(14,8)])
-
-    def test_getMovesReturnsFalse2(self):
-        self.board.setDefaultBoardState()
-        initialState = [9999,1,2,-1,3,5,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,-3,-5,-2,-1,0,0,0,-9999]
-        self.board.clearErrors()
-        self.board.setCustomBoardState(copy.deepcopy(initialState), 1)
-        self.board.setDiceRoll([3,5])
-        engine = BGEngine(copy.deepcopy(self.board))
-        engine.addDice(copy.deepcopy(self.board.getActiveDice()))
-        move = engine.getMoveForPlayer(1)
-        self.assertEqual(move,[('jail',1),(1,3)])
-
-
-
 
 
 if __name__ == '__main__':
