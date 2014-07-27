@@ -208,7 +208,7 @@ class Board () :
                 self.userError('Piece in Jail not moved correctly')
                 return False
 
-        destPos = 25 - dice
+        destPos = (self.MY_ACE + 24) - dice
         if self.doesPositionHave2OrMoreOppostionPieces(destPos, movingPlayer) :
             self.userError('2 or more opposing pieces at new position')
             return False
