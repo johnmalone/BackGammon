@@ -5,8 +5,7 @@ First python project - a curses backgammon game
 
 Mainly aimed at learning python. 
 
-Currently supports human v human, human v computer and computer v computer. The computer AI is little more than picking a 
-random move at the moment and there are various crashes that I need to address. 
+Currently supports human v human, human v computer and computer v computer. The computer AI is pretty simple with attempts to favour sequences of doubles, avoid isolated pieces and some other metrics in place.
 
 To run:
 
